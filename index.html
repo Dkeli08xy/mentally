@@ -1,13 +1,17 @@
-<!-- index.html -->
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJYAAACWCAYAAAA8AXHiAAADYklEQVR4nO3dv2pkdRjH4d9M/hozgV0bJTZZwS3s9wKMWHoHFtp7BfZi7yVYbSN2VhFcFFFrSRDZLPt/Yc2Kk01MxmRkYivCOznfbBKfB0533pzMyYeZ4uVMGgAAAAAAAAAAAAAAAADwv9Hr6oXeePOt8swnj14ZV85fO5hr1w7nStd4MPfXyVHx+dVh+b68vzMovZbV0ezJUXF7ftS2F0almY3lvbYx2C+9nh9/+bl0jX/TP/VPAGFxVoRFhLCIEBYRwiJCWEQIiwhhESEsIoRFhLCI6GwJ/cPKemkJO3Fj+dXawEfv/XNUbN5tbfNebeaL72rnT3z5fX3mDEyzuH5neOvUXXjHIkJYRAiLCGERISwihEWEsIgQFhHCIkJYRAiLiNoTk/9h9Xi+PvTBu7Xz33ittftPazMPd1p7tFOb2SruFs+xK0f91g5qD/l2obuwxgv1oQ+LYf2+29qDali/tfb4WW1m637t/HPsytHMyXHWfBQSISwihEWEsIgQFhHCIkJYRAiLCGERISwihEVEZ7vCP/pH5ZmVm9/UBl5ebG15sTbz68NLtVSuOuiNT46S49Nft7Owhv36b7Ny81Zt4Ppqa9dfr82chHV5lspVk6iGM8W/TQdh+SgkQlhECIsIYREhLCKERYSwiBAWEcIiQlhECIuIznaFnw4el79p97Pthdp2dH62tfniU73PntfOv2S+Xd5vX63s1f42HaxWvWMRISwihEWEsIgQFhHCIkJYRAiLCGERISwihEWEsIjobAm9Mdgrz3x8fK+0HH377u54/c6T2kWeH7S292fxNzufJvf468F+6Z5tLhy2rcXDM3893rGIEBYRwiJCWEQIiwhhESEsIoRFhLCIEBYRwiKis13hNCZ7rIrBaLfXRq30kOu1fq+ttfKztHHb86N2e2FUusxPSwe96j17Olv/NusuvNCwplmODo9HtUp6L43X2lL5OmmTqC7KQnkaPgqJEBYRwiJCWEQIiwhhESEsIoRFhLCIEBYRwiLihe4KqyYL1c1WXFwf9Sf7uNLien1Y3y1WH9i9SAvlaVy4sKa5ucOZ49Kyd324VPwnyu1SL5Sn4aOQCGERISwihEWEsIgQFhHCIkJYRAiLCGERISwAAAAAAAAAAAAAAAAAAKbXWvsbjJOxwjx0yMAAAAAASUVORK5CYII=" />
+    <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJYAAACWCAYAAAA8AXHiAAADYklEQVR4nO3dv2pkdRjH4d9M/hozgV0bJTZZwS3s9wKMWHoHFtp7BfZi7yVYbSN2VhFcFFFrSRDZLPt/Yc2Kk01MxmRkYivCOznfbBKfB0533pzMyYeZ4uVMGgAAAAAAAAAAAAAAAADwv9Hr6oXeePOt8swnj14ZV85fO5hr1w7nStd4MPfXyVHx+dVh+b68vzMovZbV0ezJUXF7ftS2F0almY3lvbYx2C+9nh9/+bl0jX/TP/VPAGFxVoRFhLCIEBYRwiJCWEQIiwhhESEsIoRFhLCI6GwJ/cPKemkJO3Fj+dXawEfv/XNUbN5tbfNebeaL72rnT3z5fX3mDEyzuH5neOvUXXjHIkJYRAiLCGERISwihEWEsIgQFhHCIkJYRAiLiNoTk/9h9Xi+PvTBu7Xz33ittftPazMPd1p7tFOb2SruFs+xK0f91g5qD/l2obuwxgv1oQ+LYf2+29qDali/tfb4WW1m637t/HPsytHMyXHWfBQSISwihEWEsIgQFhHCIkJYRAiLCGERISwihEVEZ7vCP/pH5ZmVm9/UBl5ebG15sTbz68NLtVSuOuiNT46S49Nft7Owhv36b7Ny81Zt4Ppqa9dfr82chHV5lspVk6iGM8W/TQdh+SgkQlhECIsIYREhLCKERYSwiBAWEcIiQlhECIuIznaFnw4el79p97Pthdp2dH62tfniU73PntfOv2S+Xd5vX63s1f42HaxWvWMRISwihEWEsIgQFhHCIkJYRAiLCGERISwihEWEsIjobAm9Mdgrz3x8fK+0HH377u54/c6T2kWeH7S292fxNzufJvf468F+6Z5tLhy2rcXDM3893rGIEBYRwiJCWEQIiwhhESEsIoRFhLCIEBYRwiKis13hNCZ7rIrBaLfXRq30kOu1fq+ttfKztHHb86N2e2FUusxPSwe96j17Olv/NusuvNCwplmODo9HtUp6L43X2lL5OmmTqC7KQnkaPgqJEBYRwiJCWEQIiwhhESEsIoRFhLCIEBYRwiLihe4KqyYL1c1WXFwf9Sf7uNLien1Y3y1WH9i9SAvlaVy4sKa5ucOZ49Kyd324VPwnyu1SL5Sn4aOQCGERISwihEWEsIgQFhHCIkJYRAiLCGERISwAAAAAAAAAAAAAAAAAAKbXWvsbjJOxwjx0yMAAAAAASUVORK5CYII=" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>心理建模</title>
-    <script type="module" crossorigin src="/mentally/assets/index-565feec3.js"></script>
-    <link rel="stylesheet" href="/mentally/assets/index-36ed1511.css">
+    <meta name="theme-color" content="#1F8A70" />
+    <meta
+      name="description"
+      content="10·10 世界精神卫生日校园科普活动：反应速度、记忆保持、情绪识别三个心理建模趣味挑战，用游戏的方式了解自己的心理活动。"
+    />
+    <title>10·10 世界精神卫生日 · 心灵绿洲</title>
+    <script type="module" crossorigin src="/mentally/assets/index-cc76a1f4.js"></script>
+    <link rel="stylesheet" href="/mentally/assets/style-c0d3bbc5.css">
   </head>
   <body>
     <div id="app"></div>
