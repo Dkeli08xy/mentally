@@ -9,7 +9,7 @@
     "build": "vite build",
     "build:pages": "vite build && node scripts/make-404.mjs",
     "preview": "vite preview",
-    "deploy": "npm run build:pages && gh-pages -d dist"
+    "deploy": "npm run build:pages && gh-pages -d dist --dotfiles"
   },
   "dependencies": {
     "echarts": "^6.0.0",
