@@ -1,202 +1,46 @@
-<!-- src\components\memory\more.vue -->
 <template>
-  <div class="memory-page">
-    <div class="content-wrapper">
-      <div class="header-section">
-        <router-link to="/game" class="back-button">
-          ← 返回
-        </router-link>
-        <h1 class="title">记忆衰减曲线</h1>
-      </div>
-
-      <div class="card">
-        <!-- 一、记忆衰减曲线概述 -->
-        <section class="section">
-          <h2 class="section-title">一、记忆衰减曲线概述</h2>
-          <p class="section-text">
-            记忆衰减曲线是基于艾宾浩斯遗忘规律与指数衰减模型构建的数学描述，用于量化呈现人类记忆内容随时间推移而逐步丢失的动态过程。它以时间为横轴、记忆保留率为纵轴，直观反映信息从识记到遗忘的速率变化，是认知心理学中解释记忆规律、指导高效学习的核心依据。
-          </p>
-        </section>
-
-        <!-- 二、科学原理与数学模型 -->
-        <section class="section">
-          <h2 class="section-title">二、科学原理与数学模型</h2>
-          <p class="section-text">
-            记忆的遗忘过程并非匀速，而是先快后慢，符合指数衰减函数：保留率 = 初始正确率 × e^(-t/k)
-          </p>
-          <p class="section-text">
-            e：自然常数（约 2.718）
-          </p>
-          <p class="section-text">
-            k：遗忘速率参数
-          </p>
-          <p class="section-text">
-            t：时间间隔
-          </p>
-          <p class="section-text">
-            该模型可精准拟合个体在不同延时时下的记忆表现，生成专属记忆衰减曲线。
-          </p>
-        </section>
-
-        <!-- 三、本项目记忆衰减模块设计 -->
-        <section class="section">
-          <h2 class="section-title">三、本项目记忆衰减模块设计</h2>
-          <p class="section-text">
-            任务范式采用识记 — 延时 — 再认标准实验流程：先让被试学习词对信息，分别在0秒，20秒、1分钟、2分钟三个延时节点进行匹配测试，记录各时间点记忆正确率。
-          </p>
-          <p class="section-text">
-            数据采集记录每个延时节点的记忆保留率，作为曲线拟合的核心数据。
-          </p>
-          <p class="section-text">
-            可视化呈现基于实测数据绘制个性化指数衰减曲线，直观展示被试的记忆遗忘速度，帮助理解 “及时复习” 的科学依据，为学习策略优化提供量化参考。
-          </p>
-          <p class="section-text">
-            科普价值以游戏化方式还原经典记忆实验，破除 “记忆靠天赋” 的认知误区，让大学生直观理解记忆可量化、遗忘有规律，兼具科学性与教育意义。
-          </p>
-        </section>
-
-        <!-- 四、权威合规声明 -->
-        <section class="section">
-          <h2 class="section-title">四、权威合规声明</h2>
-          <p class="section-text">
-            本记忆衰减曲线为心理建模科普工具，基于认知心理学经典范式设计，仅用于展示记忆规律与学习参考，不构成记忆力评估、智力测验或临床诊断；数据匿名采集，仅用于个人历史查看与科普研究。
-          </p>
-        </section>
-      </div>
-    </div>
-  </div>
+  <!-- src/components/memory/more.vue · 记忆保持挑战：科学原理 -->
+  <SciencePage title="记忆与遗忘的科学原理" subtitle="遗忘有规律，复习有方法" :art="art" :sections="sections" />
 </template>
 
-<style scoped>
-.memory-page {
-  min-height: 100vh;
-  font-family: 'Noto Sans SC', sans-serif;
-  background-image: url('../../assets/images/game/记忆_背景.webp');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
-  padding: 60px 40px;
-  box-sizing: border-box;
-}
+<script setup>
+import SciencePage from '../common/SciencePage.vue'
+import art from '../../assets/images/game/记忆_背景.webp'
 
-.content-wrapper {
-  max-width: 900px;
-  margin: 0 auto;
-}
-
-.header-section {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 20px;
-  margin-bottom: 32px;
-  position: relative;
-  flex-wrap: wrap;
-}
-
-.back-button {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 18px;
-  background-color: rgba(107, 139, 217, 0.85);
-  color: white;
-  text-decoration: none;
-  border-radius: 30px;
-  font-size: 15px;
-  font-weight: 500;
-  backdrop-filter: blur(4px);
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  flex-shrink: 0;
-}
-
-.back-button:hover {
-  background-color: #5a78c2;
-  transform: translateX(-3px);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-}
-
-.title {
-  font-size: 32px;
-  font-weight: 700;
-  color: #222;
-  margin: 0;
-  flex-shrink: 0;
-}
-
-.card {
-  border-radius: 16px;
-  padding: 40px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-}
-
-.section {
-  margin-bottom: 32px;
-}
-
-.section:last-child {
-  margin-bottom: 0;
-}
-
-.section-title {
-  font-size: 18px;
-  font-weight: 600;
-  color: #222;
-  margin: 0 0 12px 0;
-}
-
-.section-text {
-  font-size: 15px;
-  line-height: 1.8;
-  color: #333;
-  margin: 8px 0;
-}
-
-@media (max-width: 768px) {
-  .memory-page {
-    background-image: url('../../assets/images/game/记忆_移动.webp');
-    padding: 20px 10px;
-    background-size: cover;
-    background-position: top center;
-    background-attachment: scroll;
-  }
-
-  .content-wrapper {
-    max-width: 100%;
-  }
-
-  .header-section {
-    gap: 12px;
-    margin-bottom: 20px;
-  }
-
-  .back-button {
-    padding: 6px 14px;
-    font-size: 13px;
-  }
-
-  .title {
-    font-size: 26px;
-  }
-
-  .card {
-    background: transparent;
-    padding: 16px;
-    box-shadow: none;
-    border-radius: 0;
-  }
-
-  .section-title {
-    font-size: 16px;
-    color: #222;
-  }
-
-  .section-text {
-    font-size: 14px;
-    color: #333;
-    line-height: 1.7;
-  }
-}
-</style>
+const sections = [
+  {
+    title: '一、遗忘曲线从哪里来',
+    paragraphs: [
+      '19 世纪末，艾宾浩斯（H. Ebbinghaus）用无意义音节做了一项著名的自我实验，发现记忆的保持量随时间<strong>先快后慢</strong>地下降，把这条下降轨迹画出来，就是沿用至今的「遗忘曲线」。',
+      '本项目用指数衰减模型来近似描述这条曲线：<strong>R(t) = R₀ · e<sup>-t/k</sup></strong>。其中 R₀ 是刚学完时的正确率，t 是延时，k 是遗忘速率参数。k 越大，曲线下降越平缓，说明记得越牢。',
+    ],
+  },
+  {
+    title: '二、挑战流程与经典范式对应',
+    paragraphs: [
+      '挑战还原了「识记 — 延时 — 再认」的标准实验流程：先用 10 秒（进阶模式 15 秒）识记若干组词对，随后在四个延时节点各做一次匹配再认，得到四个时间点的保持率。',
+      '延时节点可以在开始前选择：<strong>快速版</strong>（0/10/30/60 秒，适合现场体验）、<strong>标准版</strong>（0/20/60/120 秒，与经典范式一致）、<strong>深度版</strong>（0/30/90/180 秒，曲线更完整）。不同时间档的读数不能直接比较，成绩页会按档位分开汇总。',
+      '词对取自日常生活意象（如「春天 → 温暖」），基础模式全部为中文，进阶模式混合英文单词与数字组合，用来对比不同材料的记忆难度。',
+      '延时期间请尽量安静等待、不默念复习，这样测到的才是自然衰减，而不是临时复述的结果。',
+    ],
+  },
+  {
+    title: '三、界面上的指标怎么读',
+    list: [
+      '<strong>遗忘速率 k</strong>：由四个延时点的实测保留率做最小二乘拟合得到，不是单点估算，能抵抗某一轮的偶然波动。',
+      '<strong>半衰期 t½</strong>：保持率下降到一半所需的时间，是最直观的记忆「保质期」。',
+      '<strong>拟合优度 R²</strong>：越接近 1，说明实测数据越符合指数衰减的规律；偏差大时曲线仅供参考。',
+      '<strong>保持率预测</strong>：基于你自己的 k 值推算的短期保留率，用于理解「什么时候复习最划算」。',
+    ],
+  },
+  {
+    title: '四、可以立刻用上的复习策略',
+    list: [
+      '<strong>及时复习</strong>：曲线在最初几十秒到几分钟内下降最快，第一次复习放在刚学完不久，收益最高。',
+      '<strong>间隔重复</strong>：把复习摊到 1 天、3 天、7 天，比一次长时间重复更牢固。',
+      '<strong>精细加工</strong>：给材料编画面、编故事、与已有知识建立联系；加工越深，k 越大，曲线越平缓。',
+      '<strong>提取练习</strong>：合上材料先自己回忆一遍（就像本挑战的再认环节），比反复阅读有效得多。',
+    ],
+  },
+]
+</script>

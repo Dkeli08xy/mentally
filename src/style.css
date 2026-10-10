@@ -1,89 +1,557 @@
+/* src/style.css
+ * ==========================================================================
+ * 10·10 世界精神卫生日 · 心理建模趣味活动 —— 全局样式
+ * --------------------------------------------------------------------------
+ * 视觉方向：绿丝带青绿主色（中国精神卫生标志色）+ 暖橙点缀
+ * 结构：
+ *   1. CSS 变量（配色 / 圆角 / 阴影）
+ *   2. Element Plus 主题变量覆盖
+ *   3. 基础重置
+ *   4. 通用布局与组件类（mh- 前缀，供各页面复用）
+ *   5. 响应式
+ * ========================================================================== */
+
+/* ---------------- 1. 设计变量 ---------------- */
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+  --mh-primary: #1f8a70;
+  --mh-primary-dark: #146a55;
+  --mh-primary-light: #2fa37c;
+  --mh-primary-soft: #e6f4ef;
+  --mh-primary-soft-2: #f2faf7;
+  --mh-accent: #f2a65a;
+  --mh-accent-soft: #fdf1e3;
+  --mh-danger: #d9694a;
+  --mh-info: #3e7cb1;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  --mh-ink: #1f2a2e;
+  --mh-ink-2: #40525a;
+  --mh-muted: #6b7c82;
+  --mh-line: #e3ecea;
+  --mh-surface: #ffffff;
+  --mh-surface-2: #f6fbf9;
 
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
+  --mh-radius: 18px;
+  --mh-radius-sm: 12px;
+  --mh-shadow: 0 10px 30px rgba(20, 106, 85, 0.1);
+  --mh-shadow-sm: 0 4px 14px rgba(20, 106, 85, 0.08);
+  --mh-font: "PingFang SC", "HarmonyOS Sans SC", "Microsoft YaHei", "Noto Sans SC", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  font-family: var(--mh-font);
+  color: var(--mh-ink);
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  -webkit-text-size-adjust: 100%;
+  text-rendering: optimizeLegibility;
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
-
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
+/* ---------------- 2. Element Plus 主题变量覆盖 ---------------- */
+:root {
+  --el-color-primary: #1f8a70;
+  --el-color-primary-light-3: #4fa88f;
+  --el-color-primary-light-5: #7cc0ac;
+  --el-color-primary-light-7: #a9d7c9;
+  --el-color-primary-light-8: #c0e1d6;
+  --el-color-primary-light-9: #e6f4ef;
+  --el-color-primary-dark-2: #146a55;
+  --el-color-warning: #f2a65a;
+  --el-color-danger: #d9694a;
+  --el-border-radius-base: 10px;
+  --el-font-family: var(--mh-font);
 }
 
+/* ---------------- 3. 基础重置 ---------------- */
+* {
+  box-sizing: border-box;
+}
+
+html,
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
-}
-
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
-.card {
-  padding: 2em;
+  padding: 0;
+  min-height: 100%;
+  background: #eef6f3;
+  color: var(--mh-ink);
 }
 
 #app {
-  max-width: 1280px;
+  min-height: 100vh;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+p {
+  margin: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+}
+
+img,
+video {
+  max-width: 100%;
+}
+
+::selection {
+  background: rgba(47, 163, 124, 0.25);
+}
+
+/* ---------------- 4. 通用布局与组件类 ---------------- */
+.mh-page {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  background: linear-gradient(160deg, #eef8f4 0%, #f7fbf9 45%, #eaf4f0 100%);
+}
+
+/* 带插画背景的页面：用青绿色蒙版统一色调 */
+.mh-page--art {
+  background-color: #0f4d3f;
+  background-image: var(--mh-art, none);
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+}
+
+.mh-page--art::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(150deg, rgba(11, 61, 50, 0.72) 0%, rgba(20, 106, 85, 0.55) 45%, rgba(242, 166, 90, 0.28) 100%);
+  pointer-events: none;
+}
+
+.mh-shell {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 1080px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 28px 20px 64px;
+}
+
+.mh-shell--narrow {
+  max-width: 880px;
+}
+
+.mh-card {
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid var(--mh-line);
+  border-radius: var(--mh-radius);
+  box-shadow: var(--mh-shadow-sm);
+  padding: 24px;
+}
+
+/* 仅对页面主容器里直接排布的卡片生效。
+   注意：不能用 .mh-card + .mh-card —— 首页三张入口卡片是网格兄弟节点，
+   会因此多出上外边距，导致第一张卡片与另外两张错位。 */
+.mh-shell > * + .mh-card {
+  margin-top: 20px;
+}
+
+.mh-card--flat {
+  box-shadow: none;
+}
+
+.mh-title {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--mh-ink);
+  letter-spacing: 0.5px;
+}
+
+.mh-subtitle {
+  margin-top: 6px;
+  font-size: 15px;
+  color: var(--mh-muted);
+}
+
+.mh-section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--mh-primary-dark);
+  margin-bottom: 10px;
+}
+
+.mh-section-title::before {
+  content: "";
+  width: 4px;
+  height: 16px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, var(--mh-primary-light), var(--mh-accent));
+}
+
+.mh-text {
+  font-size: 15px;
+  line-height: 1.9;
+  color: var(--mh-ink-2);
+}
+
+.mh-text + .mh-text {
+  margin-top: 8px;
+}
+
+.mh-muted {
+  color: var(--mh-muted);
+}
+
+.mh-strong {
+  color: var(--mh-primary-dark);
+  font-weight: 600;
+}
+
+/* 顶栏：返回 + 标题 */
+.mh-topbar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.mh-topbar__title {
+  flex: 1;
+  min-width: 180px;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--mh-ink);
+}
+
+/* 注意：只有卡片外的顶栏文字需要变成白色；
+   卡片内部是白底，正文必须保持深色，否则会出现「白底白字」。 */
+.mh-page--art .mh-topbar__title {
+  color: #ffffff;
+}
+
+.mh-page--art .mh-topbar__sub {
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.mh-page--art .mh-back {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.4);
+  color: #ffffff;
+}
+
+.mh-page--art .mh-back:hover {
+  background: rgba(255, 255, 255, 0.26);
+  border-color: #ffffff;
+}
+
+/* 徽标 / 标签 */
+.mh-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: linear-gradient(120deg, var(--mh-primary), var(--mh-primary-light));
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  box-shadow: 0 6px 16px rgba(31, 138, 112, 0.28);
+}
+
+.mh-tag {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--mh-primary-soft);
+  color: var(--mh-primary-dark);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.mh-tag--accent {
+  background: var(--mh-accent-soft);
+  color: #a8641f;
+}
+
+/* 按钮 */
+.mh-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 11px 22px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--mh-ink-2);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease, color 0.18s ease;
+  white-space: nowrap;
+}
+
+.mh-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.mh-btn:not(:disabled):hover {
+  transform: translateY(-2px);
+}
+
+.mh-btn--primary {
+  background: linear-gradient(120deg, var(--mh-primary), var(--mh-primary-light));
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(31, 138, 112, 0.26);
+}
+
+.mh-btn--primary:not(:disabled):hover {
+  box-shadow: 0 12px 26px rgba(31, 138, 112, 0.34);
+}
+
+.mh-btn--accent {
+  background: linear-gradient(120deg, var(--mh-accent), #f6c07f);
+  color: #6b4310;
+  box-shadow: 0 8px 20px rgba(242, 166, 90, 0.3);
+}
+
+.mh-btn--ghost {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: var(--mh-line);
+  color: var(--mh-primary-dark);
+}
+
+.mh-btn--ghost:not(:disabled):hover {
+  border-color: var(--mh-primary-light);
+  background: #fff;
+}
+
+.mh-btn--danger {
+  background: #fdeeea;
+  color: var(--mh-danger);
+}
+
+.mh-btn--sm {
+  padding: 7px 14px;
+  font-size: 13px;
+}
+
+.mh-btn--block {
+  width: 100%;
+}
+
+.mh-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid var(--mh-line);
+  color: var(--mh-primary-dark);
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.18s ease;
+}
+
+.mh-back:hover {
+  transform: translateX(-3px);
+  border-color: var(--mh-primary-light);
+}
+
+/* 指标卡 */
+.mh-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+}
+
+.mh-stat {
+  padding: 14px 12px;
+  border-radius: var(--mh-radius-sm);
+  background: var(--mh-surface-2);
+  border: 1px solid var(--mh-line);
   text-align: center;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
+.mh-stat__label {
+  display: block;
+  font-size: 12px;
+  color: var(--mh-muted);
+  margin-bottom: 6px;
+}
+
+.mh-stat__value {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--mh-primary-dark);
+  line-height: 1.2;
+}
+
+.mh-stat__value--accent {
+  color: #b9722a;
+}
+
+.mh-stat__unit {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--mh-muted);
+  margin-left: 2px;
+}
+
+.mh-stat__hint {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--mh-muted);
+}
+
+/* 提示条 / 结论 / 声明 */
+.mh-tip {
+  padding: 12px 16px;
+  border-radius: var(--mh-radius-sm);
+  background: var(--mh-primary-soft);
+  border-left: 4px solid var(--mh-primary-light);
+  color: var(--mh-primary-dark);
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.mh-tip--accent {
+  background: var(--mh-accent-soft);
+  border-left-color: var(--mh-accent);
+  color: #8a5416;
+}
+
+.mh-conclusion {
+  margin-top: 18px;
+  padding: 18px 20px;
+  border-radius: var(--mh-radius-sm);
+  background: linear-gradient(120deg, var(--mh-primary-soft-2), #fff);
+  border: 1px dashed var(--mh-primary-light);
+}
+
+.mh-conclusion__headline {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--mh-primary-dark);
+  margin-bottom: 8px;
+}
+
+.mh-statement {
+  margin-top: 22px;
+  padding: 16px 20px;
+  border-radius: var(--mh-radius-sm);
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid var(--mh-line);
+  font-size: 13px;
+  line-height: 1.8;
+  color: var(--mh-muted);
+}
+
+.mh-statement h4 {
+  font-size: 14px;
+  color: var(--mh-ink);
+  margin-bottom: 8px;
+}
+
+.mh-statement p + p {
+  margin-top: 4px;
+}
+
+.mh-hotline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+  margin-top: 16px;
+  padding: 14px 18px;
+  border-radius: var(--mh-radius-sm);
+  background: linear-gradient(120deg, var(--mh-primary), var(--mh-primary-dark));
+  color: #fff;
+}
+
+.mh-hotline__number {
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.mh-hotline__label {
+  font-size: 13px;
+  opacity: 0.92;
+}
+
+/* 进度条 */
+.mh-progress {
+  width: 100%;
+  height: 8px;
+  border-radius: 999px;
+  background: #e6eeeb;
+  overflow: hidden;
+}
+
+.mh-progress__fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--mh-primary), var(--mh-primary-light));
+  transition: width 0.3s ease;
+}
+
+/* 图表容器 */
+.mh-chart {
+  width: 100%;
+  height: 320px;
+}
+
+/* 动画 */
+@keyframes mhFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
   }
-  a:hover {
-    color: #747bff;
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
-  button {
-    background-color: #f9f9f9;
+}
+
+.mh-fade-up {
+  animation: mhFadeUp 0.5s ease both;
+}
+
+/* ---------------- 5. 响应式 ---------------- */
+@media (max-width: 768px) {
+  .mh-shell {
+    padding: 18px 14px 48px;
+  }
+
+  .mh-card {
+    padding: 18px 16px;
+    border-radius: 14px;
+  }
+
+  .mh-title {
+    font-size: 21px;
+  }
+
+  .mh-stat__value {
+    font-size: 19px;
+  }
+
+  .mh-chart {
+    height: 260px;
+  }
+
+  .mh-page--art {
+    background-attachment: scroll;
   }
 }

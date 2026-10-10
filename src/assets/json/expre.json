@@ -12,115 +12,121 @@
     {
       "emotion_cn": "高兴",
       "emotion_en": "happy",
+      "prefix": "ha",
       "img": {
         "count": 20,
         "extension": "webp",
-        "path_template": "./mood/img/happy/hai{i}.webp"
+        "path_template": "/mood/img/happy/hai{i}.webp"
       },
       "gif": {
         "count": 6,
         "extension": "gif",
-        "path_template": "./mood/gif/happy/hag{i}.gif"
+        "path_template": "/mood/gif/happy/hag{i}.gif"
       },
       "video": {
         "count": 2,
         "extension": "mp4",
-        "path_template": "./mood/video/happy/ham{i}.mp4"
+        "path_template": "/mood/video/happy/ham{i}.mp4"
       }
     },
     {
       "emotion_cn": "悲伤",
       "emotion_en": "sad",
+      "prefix": "sa",
       "img": {
         "count": 20,
         "extension": "webp",
-        "path_template": "./mood/img/sad/sai{i}.webp"
+        "path_template": "/mood/img/sad/sai{i}.webp"
       },
       "gif": {
         "count": 6,
         "extension": "gif",
-        "path_template": "./mood/gif/sad/sag{i}.gif"
+        "path_template": "/mood/gif/sad/sag{i}.gif"
       },
       "video": {
         "count": 2,
         "extension": "mp4",
-        "path_template": "./mood/video/sad/sam{i}.mp4"
+        "path_template": "/mood/video/sad/sam{i}.mp4"
       }
     },
     {
       "emotion_cn": "愤怒",
       "emotion_en": "angry",
+      "prefix": "an",
       "img": {
         "count": 20,
         "extension": "webp",
-        "path_template": "./mood/img/angry/ani{i}.webp"
+        "path_template": "/mood/img/angry/ani{i}.webp"
       },
       "gif": {
         "count": 6,
         "extension": "gif",
-        "path_template": "./mood/gif/angry/ang{i}.gif"
+        "path_template": "/mood/gif/angry/ang{i}.gif"
       },
       "video": {
         "count": 2,
         "extension": "mp4",
-        "path_template": "./mood/video/angry/anm{i}.mp4"
+        "path_template": "/mood/video/angry/anm{i}.mp4"
       }
     },
     {
       "emotion_cn": "恐惧",
       "emotion_en": "fear",
+      "prefix": "fe",
       "img": {
         "count": 20,
         "extension": "webp",
-        "path_template": "./mood/img/fear/fei{i}.webp"
+        "path_template": "/mood/img/fear/fei{i}.webp"
       },
       "gif": {
         "count": 6,
         "extension": "gif",
-        "path_template": "./mood/gif/fear/feg{i}.gif"
+        "path_template": "/mood/gif/fear/feg{i}.gif"
       },
       "video": {
         "count": 2,
         "extension": "mp4",
-        "path_template": "./mood/video/fear/fem{i}.mp4"
+        "path_template": "/mood/video/fear/fem{i}.mp4"
       }
     },
     {
       "emotion_cn": "惊讶",
       "emotion_en": "surprise",
+      "prefix": "su",
       "img": {
         "count": 20,
         "extension": "webp",
-        "path_template": "./mood/img/surprise/sui{i}.webp"
+        "path_template": "/mood/img/surprise/sui{i}.webp"
       },
       "gif": {
         "count": 6,
         "extension": "gif",
-        "path_template": "./mood/gif/surprise/sug{i}.gif"
+        "path_template": "/mood/gif/surprise/sug{i}.gif"
       },
       "video": {
         "count": 2,
         "extension": "mp4",
-        "path_template": "./mood/video/surprise/sum{i}.mp4"
+        "path_template": "/mood/video/surprise/sum{i}.mp4"
       }
     },
     {
       "emotion_cn": "厌恶",
       "emotion_en": "disgust",
+      "prefix": "di",
       "img": {
         "count": 20,
         "extension": "webp",
-        "path_template": "./mood/img/disgust/dii{i}.webp"
+        "path_template": "/mood/img/disgust/dii{i}.webp"
       },
       "gif": {
         "count": 6,
         "extension": "gif",
-        "path_template": "./mood/gif/disgust/dig{i}.gif"
+        "path_template": "/mood/gif/disgust/dig{i}.gif"
       },
       "video": {
         "count": 2,
         "extension": "mp4",
-        "path_template": "./mood/video/disgust/dim{i}.mp4"
+        "path_template": "/mood/video/disgust/dim{i}.mp4"
       }
     }
   ]

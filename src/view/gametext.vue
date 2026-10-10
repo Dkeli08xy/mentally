@@ -1,195 +1,229 @@
-<!-- src/view/gametext.vue -->
 <template>
-  <div class="game-page-wrapper">
-    <h1 class="page-title">游戏</h1>
-  <div class="game-container">
-    
-    <router-link to="/home">
-      <div style="position: fixed; top: 20px; left: 20px; background:#9ca3af; color:#fff; padding:8px 16px; border-radius:10px; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,0.1); z-index:99;">返回</div>
-    </router-link>
-    
-    <div class="game-box">
-      <div class="title"><img src="../assets/images/game/反应.webp" alt="反应测试"/></div>
-      <div class="btn-grid">
-        <router-link to="/R_S">简单</router-link>
-        <router-link to="/R_H">困难</router-link>
-        <router-link to="/RM">关于反应时挑战</router-link>
-        <button @click="checkReaction">总数据图</button>
-      </div>
-    </div>
+  <!-- src/view/gametext.vue · 挑战选择页 -->
+  <div class="mh-page game-pick">
+    <div class="mh-shell">
+      <PageHead title="心理趣味挑战" :subtitle="EVENT.name + ' · 三个可量化的心理小实验'" back-to="/home" back-label="返回首页">
+        <span class="mh-tag">数据仅存本机</span>
+      </PageHead>
 
-    <div class="game-box">
-      <div class="title"><img src="../assets/images/game/记忆.webp" alt="记忆测试"/></div>
-      <div class="btn-grid">
-        <router-link to="/M_S">简单</router-link>
-        <router-link to="/M_H">困难</router-link>
-        <router-link to="/MM">关于衰减曲线</router-link>
-        <button @click="checkMemory">总数据图</button>
-      </div>
-    </div>
+      <p class="mh-tip">
+        每个挑战都取材于经典心理学实验范式：<strong>看清自己的心理活动，比给自己下结论更重要</strong>。
+        所有成绩只保存在当前浏览器中，可随时在「我的记录」里查看或清空。
+      </p>
 
-    <div class="game-box">
-      <div class="title"><img src="../assets/images/game/表情.webp" alt="表情识别"/></div>
-      <div class="btn-grid">
-        <router-link to="/E_S">简单</router-link>
-        <router-link to="/E_H">困难</router-link>
-        <router-link to="/EM">关于微表情</router-link>
-        <button @click="checkExpression">总数据图</button>
-      </div>
+      <section class="game-list">
+        <article v-for="game in GAMES" :key="game.key" class="mh-card game-card">
+          <div class="game-card__cover">
+            <img :src="covers[game.key]" :alt="game.name + ' 封面'" />
+            <span class="game-card__index" :style="{ background: game.accent }">{{ game.icon }}</span>
+          </div>
+
+          <div class="game-card__body">
+            <h2 class="game-card__title">
+              {{ game.name }}
+              <span class="mh-tag">{{ game.shortName }}</span>
+            </h2>
+            <p class="game-card__tagline">{{ game.tagline }}</p>
+            <p class="game-card__desc">{{ game.desc }}</p>
+
+            <div class="game-card__actions">
+              <router-link :to="game.easy.route" class="mode" :style="{ borderColor: game.accent + '55' }">
+                <span class="mode__label" :style="{ color: game.accent }">{{ game.easy.label }}</span>
+                <span class="mode__note">{{ game.easy.note }}</span>
+              </router-link>
+              <router-link :to="game.hard.route" class="mode" :style="{ borderColor: game.accent + '55' }">
+                <span class="mode__label" :style="{ color: game.accent }">{{ game.hard.label }}</span>
+                <span class="mode__note">{{ game.hard.note }}</span>
+              </router-link>
+              <router-link :to="game.science.route" class="mh-btn mh-btn--ghost mh-btn--sm">{{ game.science.label }}</router-link>
+              <button class="mh-btn mh-btn--ghost mh-btn--sm" @click="openStats(game)">{{ game.stats.label }}</button>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="mh-statement">
+        <h4>温馨提示</h4>
+        <p>1. 挑战结果与当下的疲劳、光线、设备状态都有关，单次成绩不代表你的能力水平。</p>
+        <p>
+          2. 记忆挑战可以在开始前选择整体时间档：快速版约 1 分 40 秒、标准版约 3 分 20 秒、深度版约 5 分钟，
+          延时期间静置等待即可，建议在安静环境中完成。
+        </p>
+        <p>3. 情绪识别素材来自公开人脸表情图片与短视频，仅用于情绪辨认练习；微表情不能作为判断他人真实想法的依据。</p>
+      </section>
     </div>
-  </div>
   </div>
 </template>
 
 <script setup>
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
+import { EVENT, GAMES } from '../config/event'
+import PageHead from '../components/common/PageHead.vue'
+import coverReaction from '../assets/images/game/反应.webp'
+import coverMemory from '../assets/images/game/记忆.webp'
+import coverExpression from '../assets/images/game/表情.webp'
 import {
   ReactionTimeEasyStorage,
   ReactionTimeHardStorage,
   MemoryDecayEasyStorage,
   MemoryDecayHardStorage,
   MicroExpressionEasyStorage,
-  MicroExpressionHardStorage
+  MicroExpressionHardStorage,
 } from '../utils/localStorage'
 
 const router = useRouter()
 
-const checkReaction = () => {
-  const e = ReactionTimeEasyStorage.getList()
-  const h = ReactionTimeHardStorage.getList()
-  e.length + h.length > 0 ? router.push('/RC') : ElMessage.warning('没有你的测试数据')
+const covers = {
+  reaction: coverReaction,
+  memory: coverMemory,
+  expression: coverExpression,
 }
 
-const checkMemory = () => {
-  const e = MemoryDecayEasyStorage.getList()
-  const h = MemoryDecayHardStorage.getList()
-  e.length + h.length > 0 ? router.push('/MC') : ElMessage.warning('没有你的测试数据')
+/** 各挑战的「成绩分布」入口：有数据才允许进入 */
+const statsCheck = {
+  reaction: () => [ReactionTimeEasyStorage, ReactionTimeHardStorage],
+  memory: () => [MemoryDecayEasyStorage, MemoryDecayHardStorage],
+  expression: () => [MicroExpressionEasyStorage, MicroExpressionHardStorage],
 }
 
-const checkExpression = () => {
-  const e = MicroExpressionEasyStorage.getList()
-  const h = MicroExpressionHardStorage.getList()
-  e.length + h.length > 0 ? router.push('/EC') : ElMessage.warning('没有你的测试数据')
+const openStats = (game) => {
+  const stores = (statsCheck[game.key] || [])()
+  const count = stores.reduce((sum, store) => sum + store.count(), 0)
+  if (!count) {
+    ElMessage.warning('还没有该挑战的成绩，先完成一次测试吧')
+    return
+  }
+  router.push(game.stats.route)
 }
 </script>
 
 <style scoped>
-.game-page-wrapper {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: url("../assets/images/game/game_BJ.png") no-repeat center center;
-  background-size: cover;
-  background-attachment: fixed;
-  z-index: -1; 
-  overflow-y: auto;
-}
-
-.game-container {
-  max-width: 1100px;
-  margin: 60px auto;
-  padding: 0 20px;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 30px;
-}
-
-.game-box {
-  width: 100%;
-  max-width: 280px;
-  min-width: 240px;
+.game-list {
   display: flex;
   flex-direction: column;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.game-card {
+  display: flex;
+  gap: 22px;
+  align-items: stretch;
+}
+
+.game-card__cover {
+  position: relative;
+  width: 220px;
+  flex-shrink: 0;
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--mh-primary-soft);
+}
+
+.game-card__cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+.game-card:hover .game-card__cover img {
+  transform: scale(1.04);
+}
+
+.game-card__index {
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
   align-items: center;
-}
-
-.title {
-  font-size: 22px;
-  font-weight: 600;
-  color: #2d3748;
-  margin-bottom: 22px;
-  text-align: center;
-}
-
-.title img {
-  width: 100%;
-  max-width: 200px;
-  height: auto;
-  border-radius: 16px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  display: block;
-  margin: 0 auto;
-}
-
-.title img:hover {
-  transform: scale(1.02);
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.15);
-}
-
-.btn-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-  width: 100%;
-  margin-top: 8px;
-}
-.btn-grid a,
-.btn-grid button {
-  width: 100%;
-  padding: 12px 0;
-  border-radius: 10px;
-  border: none;
-  font-size: 14px;
-  text-align: center;
-  text-decoration: none;
+  justify-content: center;
   color: #fff;
-  background-color: #6b8bd9;
-  cursor: pointer;
-  transition: 0.2s;
+  font-size: 17px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-.btn-grid a:hover {
-  background-color: #5a78c2;
+.game-card__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
-.btn-grid button {
-  background-color: #52b7b3;
-}
-
-.page-title {
-  display: block;
-  margin: 20px auto 40px;
-  text-align: center;
-  color: #fff;
-  font-size: clamp(32px, 8vw, 55px);
+.game-card__title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 19px;
   font-weight: 700;
-  padding: clamp(20px, 5vw, 60px) clamp(30px, 10vw, 180px);
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  letter-spacing: 4px;
-  width: fit-content;
-  
-  background-image: url(../assets/images/home/game_log.png);
-  background-size: 100% 100%;
-  background-repeat: no-repeat;
-  background-position: center;
+  color: var(--mh-ink);
 }
 
-.btn-grid button:hover {
-  background-color: #439c99;
+.game-card__tagline {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--mh-primary);
+}
+
+.game-card__desc {
+  font-size: 13px;
+  line-height: 1.8;
+  color: var(--mh-muted);
+}
+
+.game-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: auto;
+  padding-top: 12px;
+}
+
+.mode {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 16px;
+  border-radius: var(--mh-radius-sm);
+  border: 1px solid var(--mh-line);
+  background: #fff;
+  transition: all 0.18s ease;
+}
+
+.mode:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--mh-shadow-sm);
+}
+
+.mode__label {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.mode__note {
+  font-size: 11px;
+  color: var(--mh-muted);
 }
 
 @media (max-width: 768px) {
-  .game-container {
-    padding: 0 15px;
+  .game-card {
+    flex-direction: column;
+    gap: 14px;
   }
-  .title img {
-    max-width: 160px;
+
+  .game-card__cover {
+    width: 100%;
+    height: 150px;
+  }
+
+  .game-card__actions {
+    padding-top: 8px;
   }
 }
 </style>

@@ -1,454 +1,212 @@
-<!-- src\view\user.vue -->
 <template>
-  <div class="game-page-wrapper">
-  <div class="history-container">
-    <div class="header-bar">
-      <router-link to="/home">
-        <el-button type="default" size="small" icon="el-icon-arrow-left">返回首页</el-button>
-      </router-link>
-      <h1 class="page-title">心理测试历史记录</h1>
-      <el-button 
-        type="warning" 
-        size="small" 
-        icon="el-icon-delete"
-        @click="handleClearAll"
-      >
-      一键清空所有测试记录
-      </el-button>
+  <!-- src/view/user.vue · 我的记录 -->
+  <div class="mh-page">
+    <div class="mh-shell">
+      <PageHead title="我的记录" subtitle="所有成绩仅保存在本机浏览器，不会上传" back-to="/home" back-label="返回首页">
+        <el-button type="danger" plain @click="handleClearAll">清空全部记录</el-button>
+      </PageHead>
+
+      <div class="summary">
+        <div class="mh-stat">
+          <span class="mh-stat__label">记录总数</span>
+          <span class="mh-stat__value">{{ total }}</span>
+          <span class="mh-stat__hint">六类挑战合计</span>
+        </div>
+        <div v-for="game in GAMES" :key="game.key" class="mh-stat">
+          <span class="mh-stat__label">{{ game.shortName }}</span>
+          <span class="mh-stat__value">{{ gameCount(game.key) }}</span>
+          <span class="mh-stat__hint">已完成测试次数</span>
+        </div>
+      </div>
+
+      <el-tabs v-model="activeTab" type="border-card" class="tabs">
+        <el-tab-pane v-for="item in RECORD_TYPES" :key="item.type" :label="item.label" :name="item.type">
+          <div v-if="lists[item.type].length === 0" class="empty">
+            <el-empty description="暂无测试数据">
+              <router-link :to="gameRoute(item)" class="mh-btn mh-btn--primary mh-btn--sm">去完成一次测试</router-link>
+            </el-empty>
+          </div>
+
+          <el-table v-else :data="lists[item.type]" stripe style="width: 100%">
+            <el-table-column label="测试时间" min-width="170">
+              <template #default="{ row }">{{ formatDateTime(row.createTime) }}</template>
+            </el-table-column>
+            <el-table-column label="成绩摘要" min-width="220">
+              <template #default="{ row }">
+                <span class="summary-cell">{{ summaryOf(item.type, row) }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="操作" width="170" fixed="right">
+              <template #default="{ row }">
+                <el-button type="primary" link @click="handleView(row.id, item.type)">查看详情</el-button>
+                <el-button type="danger" link @click="handleDelete(row.id, item.type)">删除</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </el-tab-pane>
+      </el-tabs>
+
+      <section class="mh-statement">
+        <h4>关于数据</h4>
+        <p>1. 每条记录包含成绩、指标与完成时间，保存在浏览器的 localStorage 中，键名前缀为「{{ EVENT.storagePrefix }}」。</p>
+        <p>2. 清除浏览器数据、更换浏览器或使用无痕模式都会导致记录消失，这属于预期行为。</p>
+        <p>3. 记录仅用于个人回看与科普分析，不构成任何心理评估结论。</p>
+      </section>
     </div>
-
-    <el-tabs v-model="activeTab" type="border-card" class="game-tabs">
-      <!-- 简单反应时 -->
-      <el-tab-pane label="简单反应时" name="reactionEasy">
-        <div class="tab-content">
-          <div v-if="reactionEasyList.length === 0" class="empty-data">
-            <el-empty description="暂无测试数据" />
-          </div>
-          <el-table v-else :data="reactionEasyList" stripe style="width: 100%">
-            <el-table-column prop="createTime" label="测试时间" min-width="180">
-              <template #default="{ row }">
-                {{ formatDateTime(row.createTime) }}
-              </template>
-            </el-table-column>
-            <el-table-column label="操作" width="180" fixed="right">
-              <template #default="{ row }">
-                <el-button type="danger" size="small" @click="handleDelete(row.id, 'reactionEasy')">删除</el-button>
-                <el-button type="primary" size="small" @click="handleView(row.id, 'reactionEasy')">查看</el-button>
-              </template>
-            </el-table-column>
-          </el-table>
-        </div>
-      </el-tab-pane>
-
-      <!-- 困难反应时 -->
-      <el-tab-pane label="困难反应时" name="reactionHard">
-        <div class="tab-content">
-          <div v-if="reactionHardList.length === 0" class="empty-data">
-            <el-empty description="暂无测试数据" />
-          </div>
-          <el-table v-else :data="reactionHardList" stripe style="width: 100%">
-            <el-table-column prop="createTime" label="测试时间" min-width="180">
-              <template #default="{ row }">
-                {{ formatDateTime(row.createTime) }}
-              </template>
-            </el-table-column>
-            <el-table-column label="操作" width="180" fixed="right">
-              <template #default="{ row }">
-                <el-button type="danger" size="small" @click="handleDelete(row.id, 'reactionHard')">删除</el-button>
-                <el-button type="primary" size="small" @click="handleView(row.id, 'reactionHard')">查看</el-button>
-              </template>
-            </el-table-column>
-          </el-table>
-        </div>
-      </el-tab-pane>
-
-      <!-- 简单记忆衰减 -->
-      <el-tab-pane label="简单记忆衰减" name="memoryEasy">
-        <div class="tab-content">
-          <div v-if="memoryEasyList.length === 0" class="empty-data">
-            <el-empty description="暂无测试数据" />
-          </div>
-          <el-table v-else :data="memoryEasyList" stripe style="width: 100%">
-            <el-table-column prop="createTime" label="测试时间" min-width="180">
-              <template #default="{ row }">
-                {{ formatDateTime(row.createTime) }}
-              </template>
-            </el-table-column>
-            <el-table-column label="操作" width="180" fixed="right">
-              <template #default="{ row }">
-                <el-button type="danger" size="small" @click="handleDelete(row.id, 'memoryEasy')">删除</el-button>
-                <el-button type="primary" size="small" @click="handleView(row.id, 'memoryEasy')">查看</el-button>
-              </template>
-            </el-table-column>
-          </el-table>
-        </div>
-      </el-tab-pane>
-
-      <!-- 困难记忆衰减 -->
-      <el-tab-pane label="困难记忆衰减" name="memoryHard">
-        <div class="tab-content">
-          <div v-if="memoryHardList.length === 0" class="empty-data">
-            <el-empty description="暂无测试数据" />
-          </div>
-          <el-table v-else :data="memoryHardList" stripe style="width: 100%">
-            <el-table-column prop="createTime" label="测试时间" min-width="180">
-              <template #default="{ row }">
-                {{ formatDateTime(row.createTime) }}
-              </template>
-            </el-table-column>
-            <el-table-column label="操作" width="180" fixed="right">
-              <template #default="{ row }">
-                <el-button type="danger" size="small" @click="handleDelete(row.id, 'memoryHard')">删除</el-button>
-                <el-button type="primary" size="small" @click="handleView(row.id, 'memoryHard')">查看</el-button>
-              </template>
-            </el-table-column>
-          </el-table>
-        </div>
-      </el-tab-pane>
-
-      <!-- 简单微表情判断 -->
-      <el-tab-pane label="简单微表情判断" name="microEasy">
-        <div class="tab-content">
-          <div v-if="microEasyList.length === 0" class="empty-data">
-            <el-empty description="暂无测试数据" />
-          </div>
-          <el-table v-else :data="microEasyList" stripe style="width: 100%">
-            <el-table-column prop="createTime" label="测试时间" min-width="180">
-              <template #default="{ row }">
-                {{ formatDateTime(row.createTime) }}
-              </template>
-            </el-table-column>
-            <el-table-column label="操作" width="180" fixed="right">
-              <template #default="{ row }">
-                <el-button type="danger" size="small" @click="handleDelete(row.id, 'microEasy')">删除</el-button>
-                <el-button type="primary" size="small" @click="handleView(row.id, 'microEasy')">查看</el-button>
-              </template>
-            </el-table-column>
-          </el-table>
-        </div>
-      </el-tab-pane>
-
-      <!-- 困难微表情判断 -->
-      <el-tab-pane label="困难微表情判断" name="microHard">
-        <div class="tab-content">
-          <div v-if="microHardList.length === 0" class="empty-data">
-            <el-empty description="暂无测试数据" />
-          </div>
-          <el-table v-else :data="microHardList" stripe style="width: 100%">
-            <el-table-column prop="createTime" label="测试时间" min-width="180">
-              <template #default="{ row }">
-                {{ formatDateTime(row.createTime) }}
-              </template>
-            </el-table-column>
-            <el-table-column label="操作" width="180" fixed="right">
-              <template #default="{ row }">
-                <el-button type="danger" size="small" @click="handleDelete(row.id, 'microHard')">删除</el-button>
-                <el-button type="primary" size="small" @click="handleView(row.id, 'microHard')">查看</el-button>
-              </template>
-            </el-table-column>
-          </el-table>
-        </div>
-      </el-tab-pane>
-    </el-tabs>
-  </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { ElMessageBox, ElMessage } from 'element-plus'
-import {
-  ReactionTimeEasyStorage,
-  ReactionTimeHardStorage,
-  MemoryDecayEasyStorage,
-  MemoryDecayHardStorage,
-  MicroExpressionEasyStorage,
-  MicroExpressionHardStorage
-} from '../utils/localStorage'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { EVENT, GAMES, RECORD_TYPES } from '../config/event'
+import PageHead from '../components/common/PageHead.vue'
+import { STORAGE_BY_TYPE, clearAllRecords } from '../utils/localStorage'
+import { formatDateTime, gradeForgetting, gradeReactionTime, gradeSchulte } from '../utils/analysis'
 
 const router = useRouter()
-
 const activeTab = ref('reactionEasy')
 
-const reactionEasyList = ref([])
-const reactionHardList = ref([])
-const memoryEasyList = ref([])
-const memoryHardList = ref([])
-const microEasyList = ref([])
-const microHardList = ref([])
+const lists = reactive(
+  RECORD_TYPES.reduce((acc, item) => {
+    acc[item.type] = []
+    return acc
+  }, {})
+)
 
-const storageMap = {
-  reactionEasy: ReactionTimeEasyStorage,
-  reactionHard: ReactionTimeHardStorage,
-  memoryEasy: MemoryDecayEasyStorage,
-  memoryHard: MemoryDecayHardStorage,
-  microEasy: MicroExpressionEasyStorage,
-  microHard: MicroExpressionHardStorage
-}
+const total = computed(() => Object.values(lists).reduce((sum, list) => sum + list.length, 0))
 
-const listMap = {
-  reactionEasy: reactionEasyList,
-  reactionHard: reactionHardList,
-  memoryEasy: memoryEasyList,
-  memoryHard: memoryHardList,
-  microEasy: microEasyList,
-  microHard: microHardList
-}
-
-const formatDateTime = (isoString) => {
-  if (!isoString) return '--'
-  const date = new Date(isoString)
-  return date.toLocaleString('zh-CN', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit'
-  })
-}
+const gameCount = (gameKey) =>
+  RECORD_TYPES.filter((t) => t.game === gameKey).reduce((sum, t) => sum + lists[t.type].length, 0)
 
 const loadData = (type) => {
-  const storage = storageMap[type]
-  if (!storage) return
-  const list = storage.getList()
-  const sortedList = [...list].sort((a, b) => {
-    return new Date(b.createTime) - new Date(a.createTime)
-  })
-  listMap[type].value = sortedList
+  const store = STORAGE_BY_TYPE[type]
+  if (!store) return
+  lists[type] = store
+    .getList()
+    .slice()
+    .sort((a, b) => new Date(b.createTime) - new Date(a.createTime))
 }
 
-const loadAllData = () => {
-  loadData('reactionEasy')
-  loadData('reactionHard')
-  loadData('memoryEasy')
-  loadData('memoryHard')
-  loadData('microEasy')
-  loadData('microHard')
+const loadAllData = () => RECORD_TYPES.forEach((item) => loadData(item.type))
+
+/** 每类挑战的摘要文案：用统一算法模块生成，避免各页面口径不一致 */
+const summaryOf = (type, row) => {
+  switch (type) {
+    case 'reactionEasy': {
+      const g = gradeReactionTime(row.average)
+      return `平均 ${row.average ?? '--'} ms · ${g.text}`
+    }
+    case 'reactionHard': {
+      const seconds = row.average ? row.average / 1000 : 0
+      const g = gradeSchulte(seconds)
+      const err = row.totalErrors ? ` · 点错 ${row.totalErrors} 次` : ''
+      return `平均 ${seconds ? seconds.toFixed(2) : '--'} s · ${g.text}${err}`
+    }
+    case 'memoryEasy':
+    case 'memoryHard': {
+      const g = gradeForgetting(row.kValue || 0)
+      return `k = ${row.kValue ?? '--'} · 2 分钟保持 ${row.rates?.[3] ?? '--'}% · ${g.text}`
+    }
+    case 'microEasy':
+    case 'microHard': {
+      return `正确率 ${row.accuracy ?? '--'}%（${row.correctCount ?? 0}/${row.totalRounds ?? 0}）`
+    }
+    default:
+      return '--'
+  }
+}
+
+const gameRoute = (item) => {
+  const game = GAMES.find((g) => g.key === item.game)
+  if (!game) return '/game'
+  return item.mode === '简单' ? game.easy.route : game.hard.route
 }
 
 const handleDelete = (id, type) => {
-  ElMessageBox.confirm(
-    '此操作将永久删除该测试记录, 是否继续?',
-    '提示',
-    {
-      confirmButtonText: '确定删除',
-      cancelButtonText: '取消',
-      type: 'warning'
-    }
-  ).then(() => {
-    const storage = storageMap[type]
-    if (!storage) return
-    storage.removeById(id)
-    loadData(type)
-    ElMessage({
-      type: 'success',
-      message: '删除成功!'
-    })
-  }).catch(() => {
-    ElMessage({
-      type: 'info',
-      message: '已取消删除'
-    })
+  ElMessageBox.confirm('删除后无法恢复，确认删除这条记录吗？', '提示', {
+    confirmButtonText: '删除',
+    cancelButtonText: '取消',
+    type: 'warning',
   })
+    .then(() => {
+      STORAGE_BY_TYPE[type].removeById(id)
+      loadData(type)
+      ElMessage.success('已删除')
+    })
+    .catch(() => {})
 }
 
 const handleView = (id, type) => {
-  let path = ''
-  if (type.startsWith('reaction')) {
-    path = '/RSC'
-  } else if (type.startsWith('memory')) {
-    path = '/MSC'
-  } else if (type.startsWith('micro')) {
-    path = '/EEC'
-  }
-
-  router.push({
-    path: path,
-    query: {
-      recordId: id,
-      type: type
-    }
-  })
+  const game = RECORD_TYPES.find((t) => t.type === type)?.game
+  const route = GAMES.find((g) => g.key === game)?.detailRoute
+  if (!route) return
+  router.push({ path: route, query: { recordId: id, type } })
 }
 
 const handleClearAll = () => {
-  ElMessageBox.confirm(
-    '此操作将永久清空【所有】心理测试历史记录，无法恢复，是否继续？',
-    '危险操作确认',
-    {
-      confirmButtonText: '确认清空',
-      cancelButtonText: '取消',
-      type: 'error'
-    }
-  ).then(() => {
-    ReactionTimeEasyStorage.clear()
-    ReactionTimeHardStorage.clear()
-    MemoryDecayEasyStorage.clear()
-    MemoryDecayHardStorage.clear()
-    MicroExpressionEasyStorage.clear()
-    MicroExpressionHardStorage.clear()
-    
-    loadAllData()
-    
-    ElMessage({
-      type: 'success',
-      message: '所有测试数据已清空！'
-    })
-  }).catch(() => {
-    ElMessage({
-      type: 'info',
-      message: '已取消清空操作'
-    })
+  ElMessageBox.confirm('将清空全部挑战记录，且无法恢复，确认继续吗？', '危险操作', {
+    confirmButtonText: '确认清空',
+    cancelButtonText: '取消',
+    type: 'error',
   })
+    .then(() => {
+      clearAllRecords()
+      loadAllData()
+      ElMessage.success('已清空全部记录')
+    })
+    .catch(() => {})
 }
 
-onMounted(() => {
-  loadAllData()
-})
+onMounted(loadAllData)
 </script>
 
 <style scoped>
-.game-page-wrapper {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: url("../assets/images/load/user_user.png") no-repeat center center;
-  background-size: cover;
-  background-attachment: fixed;
-  z-index: -1; 
-}
-.history-container {
-  width: 95%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 16px;
-  height: calc(100vh - 32px);
-  overflow-y: auto;
-  background: rgba(255, 255, 255, 0.8);
-  border-radius: 10px;
-}
-
-.header-bar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
+.summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
   gap: 12px;
   margin-bottom: 20px;
-  padding: 12px 0;
 }
 
-.page-title {
-  flex: 1;
-  text-align: center;
-  margin: 0;
-  color: #2c3e50;
-  font-size: clamp(20px, 4vw, 26px);
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.game-tabs {
-  min-height: calc(100vh - 180px);
-  border-radius: 10px;
+.tabs {
+  border-radius: var(--mh-radius-sm);
   overflow: hidden;
-  background: transparent !important;
 }
 
-.tab-content {
-  padding: 12px 0;
-}
-.empty-data {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 300px;
-  padding: 20px;
+.empty {
+  padding: 20px 0;
 }
 
-:deep(.el-table) {
-  font-size: 14px;
-  --el-table-row-hover-bg-color: rgba(255,255,255,0.2);
-  background: transparent !important;
-}
-:deep(.el-table tr),
-:deep(.el-table td),
-:deep(.el-table th) {
-  background: transparent !important;
+.summary-cell {
+  font-size: 13px;
+  color: var(--mh-ink-2);
 }
 
 :deep(.el-tabs--border-card) {
-  border: none;
-  border-radius: 10px;
-  box-shadow: none;
-  background: transparent !important;
+  border-color: var(--mh-line);
+  box-shadow: var(--mh-shadow-sm);
 }
 
 :deep(.el-tabs__header) {
-  background-color: transparent !important;
-  border-radius: 10px 10px 0 0;
-  margin: 0;
-  border-bottom: 1px solid #eee;
-}
-
-:deep(.el-tabs__nav-wrap) {
-  overflow-x: auto;
-  padding: 0 8px;
-}
-:deep(.el-tabs__nav) {
-  flex-wrap: wrap;
-}
-
-:deep(.el-tabs__item) {
-  font-size: clamp(13px, 2vw, 14px);
-  font-weight: 500;
-  padding: 0 16px;
-  height: 44px;
-  line-height: 44px;
-  white-space: nowrap;
-  background: transparent !important;
+  background-color: var(--mh-surface-2);
 }
 
 :deep(.el-tabs__item.is-active) {
-  color: #667eea !important;
-  font-weight: 600;
+  color: var(--mh-primary) !important;
+  font-weight: 700;
+}
+
+:deep(.el-table) {
+  --el-table-header-bg-color: var(--mh-surface-2);
+  --el-table-row-hover-bg-color: #f2faf7;
 }
 
 @media (max-width: 768px) {
-  .history-container {
-    width: 100%;
-    padding: 12px 8px;
-  }
-
-  .header-bar {
-    flex-direction: column;
-    text-align: center;
-    gap: 10px;
-  }
-  
-  .page-title {
-    order: -1;
-    width: 100%;
-    margin-bottom: 8px;
-  }
-
-  :deep(.el-table .el-button + .el-button) {
-    margin-left: 6px;
-  }
-}
-
-@media (max-width: 480px) {
   :deep(.el-tabs__item) {
-    padding: 0 10px;
-    font-size: 12px;
-  }
-  
-  .empty-data {
-    min-height: 220px;
+    padding: 0 12px;
+    font-size: 13px;
   }
 }
 </style>

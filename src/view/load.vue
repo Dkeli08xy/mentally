@@ -1,139 +1,153 @@
-<!-- src\view\load.vue -->
 <template>
-  <router-link to="/home">
-    <div class="bg"></div>
-    <img src="../assets/images/load/sun.png" alt="太阳" class="sun-icon" />
-    <div class="text-group">
-      <h1 class="title">"525心理活动"</h1>
-      <p class="subtitle">情绪乐园</p>
+  <!-- src/view/load.vue · 活动封面页 -->
+  <router-link to="/home" class="cover" :aria-label="EVENT.name + ' 活动封面，点击进入'">
+    <div class="cover__bg"></div>
+    <div class="cover__tint"></div>
+
+    <div class="cover__content">
+      <RibbonMark :size="84" tone="light" />
+      <p class="cover__meta">{{ EVENT.year }} · {{ EVENT.ordinal }}{{ EVENT.name }}</p>
+      <h1 class="cover__title">{{ EVENT.badge }}<span>{{ EVENT.name }}</span></h1>
+      <p class="cover__slogan">{{ EVENT.slogan }}</p>
+      <p class="cover__theme">{{ EVENT.themeText }}</p>
+      <span class="cover__tip">{{ EVENT.loadingTip }}</span>
     </div>
-    <p class="tip">点击任意位置进入活动详情</p>
+
+    <p class="cover__footer">{{ EVENT.organizer }}</p>
   </router-link>
 </template>
 
 <script setup>
+import { EVENT } from '../config/event'
+import RibbonMark from '../components/common/RibbonMark.vue'
 </script>
 
 <style scoped>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+.cover {
+  position: relative;
+  display: block;
+  width: 100%;
+  min-height: 100vh;
+  overflow: hidden;
+  font-family: var(--mh-font);
 }
 
-.bg {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
+.cover__bg {
+  position: absolute;
+  inset: 0;
   background: url('../assets/images/load/bg.png') center center / cover no-repeat;
-  z-index: 0;
+  transform: scale(1.02);
 }
 
-.sun-icon {
+/* 青绿色蒙版：把原插画统一到绿丝带主色 */
+.cover__tint {
   position: absolute;
-  top: 20%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 80px;
-  height: auto;
+  inset: 0;
+  background: linear-gradient(155deg, rgba(10, 58, 47, 0.78) 0%, rgba(20, 106, 85, 0.58) 45%, rgba(242, 166, 90, 0.3) 100%);
+}
+
+.cover__content {
+  position: relative;
   z-index: 1;
-}
-
-.text-group {
-  position: absolute;
-  top: 32%;
-  left: 50%;
-  transform: translateX(-50%);
+  min-height: 100vh;
+  padding: 12vh 24px 16vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   text-align: center;
-  z-index: 1;
+  gap: 10px;
 }
 
-.title {
-  font-size: 4rem;
-  font-weight: bold;
-  color: #ffffff;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  margin: 0 0 16px 0;
+.cover__meta {
+  margin-top: 18px;
+  font-size: 15px;
+  letter-spacing: 2px;
+  color: rgba(255, 255, 255, 0.86);
 }
 
-.subtitle {
-  font-size: 2.2rem;
-  color: #ffffff;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
-  margin: 0;
+.cover__title {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  flex-wrap: wrap;
+  justify-content: center;
+  font-size: clamp(34px, 6vw, 62px);
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: 2px;
+  text-shadow: 0 6px 26px rgba(6, 40, 32, 0.5);
 }
 
-.tip {
+.cover__title span {
+  font-size: clamp(24px, 4vw, 44px);
+  font-weight: 700;
+}
+
+.cover__slogan {
+  margin-top: 6px;
+  font-size: clamp(17px, 2.4vw, 24px);
+  color: #fff;
+  letter-spacing: 1px;
+}
+
+.cover__theme {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.82);
+  padding: 6px 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(4px);
+}
+
+.cover__tip {
+  margin-top: 30px;
+  font-size: 15px;
+  color: #fff;
+  padding: 10px 26px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  animation: coverPulse 2.2s ease-in-out infinite;
+}
+
+@keyframes coverPulse {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.92;
+  }
+  50% {
+    transform: translateY(-4px);
+    opacity: 1;
+  }
+}
+
+.cover__footer {
   position: absolute;
-  bottom: 15%;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 1.4rem;
-  color: #ffffff;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
   z-index: 1;
-  white-space: nowrap;
+  left: 0;
+  right: 0;
+  bottom: 24px;
+  text-align: center;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.75);
+  padding: 0 24px;
 }
 
 @media (max-width: 768px) {
-  .sun-icon {
-    width: 70px;
+  .cover__content {
+    padding: 10vh 18px 14vh;
   }
 
-  .title {
-    font-size: 3rem;
+  .cover__meta {
+    font-size: 13px;
   }
 
-  .subtitle {
-    font-size: 1.8rem;
-  }
-
-  .tip {
-    font-size: 1.2rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .sun-icon {
-    width: 60px;
-    top: 18%;
-  }
-
-  .text-group {
-    top: 30%;
-  }
-
-  .title {
-    font-size: 2.2rem;
-  }
-
-  .subtitle {
-    font-size: 1.4rem;
-  }
-
-  .tip {
-    font-size: 1rem;
-    bottom: 12%;
-  }
-}
-
-@media (max-width: 320px) {
-  .sun-icon {
-    width: 50px;
-  }
-
-  .title {
-    font-size: 1.8rem;
-  }
-
-  .subtitle {
-    font-size: 1.2rem;
-  }
-
-  .tip {
-    font-size: 0.9rem;
+  .cover__tip {
+    font-size: 13px;
+    padding: 8px 18px;
   }
 }
 </style>

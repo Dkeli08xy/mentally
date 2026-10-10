@@ -22,3 +22,12 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# 工具与临时目录
+.dsh-vision-toolkit/
+.dsh-tmp/
+.pages-worktree/
+
+# 未被任何代码引用的重复素材：与 public/mood 内容完全一致（约 58MB），
+# 保留在本地磁盘上，但不纳入版本管理，避免仓库体积翻倍。
+src/assets/mood/

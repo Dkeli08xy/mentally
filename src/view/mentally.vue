@@ -1,265 +1,607 @@
-<!-- src\view\mentally.vue -->
 <template>
-  <div
-   class="mentally-page">
-    <div class="bg-wrapper"></div>
+  <!-- src/view/mentally.vue · 世界精神卫生日介绍（活动信息 / 科普 / 误区 / 心理中心预约） -->
+  <div class="mh-page">
+    <div class="mh-shell">
+      <PageHead :title="EVENT.name + ' · 活动介绍'" :subtitle="EVENT.dateText" back-to="/home" back-label="返回首页" />
 
-    <div class="page-container">
-      <div class="page-header">
-        <router-link to="/home" class="back-btn">
-          <el-button type="default" size="small">
-            <el-icon><ArrowLeft /></el-icon> 返回首页
-          </el-button>
-        </router-link>
-        <h1 class="page-title">5·25 心理健康月活动总览</h1>
-      </div>
+      <!-- 一、节日与年度主题 -->
+      <section class="mh-card">
+        <div class="intro__head">
+          <RibbonMark :size="64" />
+          <div>
+            <h2 class="mh-title">{{ EVENT.year }} 年{{ EVENT.ordinal }}{{ EVENT.name }}</h2>
+            <p class="mh-subtitle">{{ EVENT.dateText }} · 宣传标志：绿丝带</p>
+          </div>
+        </div>
 
-      <div class="intro-box">
-        <p>
-          5·25 大学生心理健康月以“关爱自我、悦纳成长”为主题，
-          通过<strong>以德育心、以智慧心、以体强心、以美润心、以劳健心</strong>五大系列活动，
-          帮助学生在游戏、体验、创作与互动中获得积极心理成长。
+        <div class="theme-box">
+          <span class="theme-box__label">{{ EVENT.year }} 年度主题</span>
+          <p class="theme-box__text">「{{ EVENT.themeText }}」</p>
+          <p class="theme-box__from">{{ EVENT.themeFrom }}</p>
+        </div>
+
+        <p class="mh-text">
+          「世界精神卫生日」（{{ EVENT.nameEn }}）由世界精神病学协会于 1992 年发起，定在每年
+          <strong class="mh-strong">10 月 10 日</strong>，{{ EVENT.year }} 年是{{ EVENT.ordinal }}，
+          目的是让精神卫生知识走进日常、让需要帮助的人更容易开口、也更容易找到支持。我国的宣传标志是
+          <strong class="mh-strong">绿丝带</strong>：绿色象征生命与希望，丝带寓意理解、接纳与陪伴。
         </p>
-      </div>
 
-      <el-tabs v-model="activeTab" type="border-card" class="main-tabs" scrollable>
-        <!-- 1. 以德育心系列 -->
-        <el-tab-pane label="以德育心系列" name="moral">
-          <el-card class="activity-card">
-            <template #header>
-              <span>心灵寄语展</span>
-            </template>
-            <p><strong>时间：</strong>5月6日—5月25日</p>
-            <p><strong>地点：</strong>教学楼、食堂</p>
-            <p><strong>内容：</strong>面向教职工征集暖心寄语，制作成吊牌、展板在校园主要区域展示，传递温暖关怀，搭建师生情感桥梁。</p>
-          </el-card>
+        <div class="meaning">
+          <div class="meaning__item">
+            <span class="mh-tag">广义</span>
+            <p>
+              精神卫生是<strong>促进整体心理健康</strong>：让人能应对日常压力、发挥自己的能力、
+              与他人建立良好关系、参与并享受生活。它不是「没有问题」才算好，而是一种可以被维护的状态。
+            </p>
+          </div>
+          <div class="meaning__item">
+            <span class="mh-tag mh-tag--accent">狭义</span>
+            <p>
+              精神卫生也包括对精神心理问题的<strong>预防、治疗与康复</strong>：早识别、早求助、按医嘱治疗、
+              在支持中恢复社会功能。两者并不冲突——日常的心理保健做得好，需要治疗的风险也会更低。
+            </p>
+          </div>
+        </div>
 
-          <el-card class="activity-card">
-            <template #header>
-              <span>综合心理作品征集</span>
-            </template>
-            <p><strong>时间：</strong>4月26日—5月15日</p>
-            <p><strong>地点：</strong>信息楼204</p>
-            <p><strong>内容：</strong>征集AI绘画、手工、书法、手抄报等心理主题作品，举办校园心理艺术展，以艺术表达促进心理健康。</p>
-          </el-card>
-        </el-tab-pane>
+        <div class="intro__facts">
+          <div v-for="fact in facts" :key="fact.label" class="intro__fact">
+            <span class="intro__fact-label">{{ fact.label }}</span>
+            <span class="intro__fact-value">{{ fact.value }}</span>
+          </div>
+        </div>
+      </section>
 
-        <el-tab-pane label="以智慧心系列" name="wisdom">
-          <el-card class="activity-card">
-            <template #header>
-              <span>马赛克填色展</span>
-            </template>
-            <p><strong>时间：</strong>5月13日</p>
-            <p><strong>地点：</strong>校园广场</p>
-            <p><strong>内容：</strong>大型马赛克墙供学生集体填色，围绕成长、陪伴、突破、接纳等主题，在创作中凝聚正向力量。</p>
-          </el-card>
+      <!-- 二、同期校园活动 -->
+      <section class="mh-card">
+        <h2 class="mh-section-title">10 月 10 日 · 同期校园活动</h2>
+        <div class="activity-list">
+          <article v-for="act in EVENT.activities" :key="act.name" class="activity">
+            <div class="activity__head">
+              <h3 class="activity__name">{{ act.name }}</h3>
+              <span class="mh-tag">{{ act.tag }}</span>
+            </div>
+            <p class="activity__date">{{ act.date }}</p>
+            <p class="activity__note">{{ act.note }}</p>
+          </article>
+        </div>
+        <p class="mh-text mh-muted">活动安排以学校正式通知为准，若时间地点调整，请以最新通知为准。</p>
+      </section>
 
-          <el-card class="activity-card">
-            <template #header>
-              <span>21天校景幸福打卡</span>
-            </template>
-            <p><strong>时间：</strong>4月20日—5月15日</p>
-            <p><strong>地点：</strong>线上+线下</p>
-            <p><strong>内容：</strong>定制校园文创明信片，21天记录幸福小事，培养积极心态，增强校园归属感。</p>
-          </el-card>
-        </el-tab-pane>
+      <!-- 三、常见误区 -->
+      <section class="mh-card">
+        <h2 class="mh-section-title">关于精神心理的常见误区</h2>
+        <p class="mh-text">很多犹豫并不是因为「不需要帮助」，而是因为一些流传很广的误解。先看清它们，再决定要不要开口。</p>
 
-        <el-tab-pane label="以体强心系列" name="body">
-          <el-card class="activity-card">
-            <template #header>
-              <span>京东校园趣味运动会</span>
-            </template>
-            <p><strong>时间：</strong>5月14日</p>
-            <p><strong>地点：</strong>五月花广场</p>
-            <p><strong>内容：</strong>联合京东校园开展趣味运动、减压游戏，让学生在运动中释放压力、放松身心、增强心理韧性。</p>
-          </el-card>
-        </el-tab-pane>
+        <ul class="myths">
+          <li v-for="(item, i) in myths" :key="i" class="myth">
+            <p class="myth__wrong"><span class="myth__icon">✕</span>误区：{{ item.myth }}</p>
+            <p class="myth__right"><span class="myth__icon">✓</span>事实：{{ item.fact }}</p>
+          </li>
+        </ul>
+      </section>
 
-        <el-tab-pane label="以美润心系列" name="beauty">
-          <el-card class="activity-card">
-            <template #header>
-              <span>彩虹心愿瓶手作工坊</span>
-            </template>
-            <p><strong>时间：</strong>5月14日—5月16日</p>
-            <p><strong>地点：</strong>五月花广场</p>
-            <p><strong>内容：</strong>学生制作心愿瓶，写下期许与祝福，在手工创作中舒缓情绪、寄托希望。</p>
-          </el-card>
-        </el-tab-pane>
+      <!-- 四、费用与政策 -->
+      <section class="mh-card">
+        <h2 class="mh-section-title">心理咨询的费用与政策</h2>
 
-        <el-tab-pane label="以劳健心系列" name="labor">
-          <el-card class="activity-card">
-            <template #header>
-              <span>绿植种植打卡启动</span>
-            </template>
-            <p><strong>时间：</strong>5月7日</p>
-            <p><strong>地点：</strong>天和广场</p>
-            <p><strong>内容：</strong>发放绿植种子，学生种植并记录成长，在劳动中培养耐心、责任心，舒缓焦虑情绪。</p>
-          </el-card>
+        <div class="highlight">
+          <p class="highlight__title">在校学生：校内心理健康中心免费咨询</p>
+          <p>
+            我校心理健康中心面向<strong>全体在校学生免费开放</strong>，不需要医保、不产生费用，
+            也不需要任何「资格」——学业压力、人际相处、情绪低落、对未来迷茫，都可以来聊。
+          </p>
+        </div>
 
-          <el-card class="activity-card">
-            <template #header>
-              <span>教职工风铃团辅</span>
-            </template>
-            <p><strong>时间：</strong>5月14日</p>
-            <p><strong>地点：</strong>团体辅导室</p>
-            <p><strong>内容：</strong>面向教师开展手工团辅，释放工作压力，舒缓情绪，提升职业幸福感。</p>
-          </el-card>
-        </el-tab-pane>
+        <p class="mh-text">
+          在社会层面，精神心理服务也在变得更可及。2024 年 11 月，国家医保局印发
+          <strong class="mh-strong">《精神治疗类医疗服务价格项目立项指南（试行）》</strong>，
+          统一规范精神治疗类价格项目，区分「心理治疗」（按小时计费）与「心理咨询」（按次收费），
+          并明确两者不可同时收费，为减轻费用负担、推动相关服务纳入医保支付提供了政策基础。
+        </p>
+        <p class="mh-text mh-muted">
+          目前各地推进进度不一致，门诊报销范围与比例请以当地医保部门、就诊医院公布的信息为准。
+          如果暂时不方便或不确定，可以先使用下面的免费渠道。
+        </p>
 
-        <el-tab-pane label="闭幕式暨5·25总结" name="finish">
-          <el-card class="activity-card">
-            <template #header>
-              <span>心理情景剧校级决赛暨5·25闭幕式</span>
-            </template>
-            <p><strong>时间：</strong>5月21日</p>
-            <p><strong>地点：</strong>求实楼报告厅</p>
-            <p><strong>内容：</strong>汇集各学院优秀心理情景剧作品进行校级展演，完成5·25心理健康月总结与成果展示。</p>
-          </el-card>
-        </el-tab-pane>
-      </el-tabs>
+        <div class="channels">
+          <div class="channel">
+            <p class="channel__title">校内心理健康中心</p>
+            <p class="channel__desc">免费 · 保密 · 可预约</p>
+            <p class="channel__meta">{{ EVENT.counseling.hoursText }}</p>
+          </div>
+          <div class="channel">
+            <p class="channel__title">{{ EVENT.hotline.number }}</p>
+            <p class="channel__desc">{{ EVENT.hotline.label }}</p>
+            <p class="channel__meta">{{ EVENT.hotline.note }}</p>
+          </div>
+        </div>
+        <p class="mh-text mh-muted">{{ EVENT.emergencyNote }}</p>
+      </section>
+
+      <!-- 五、预约通道（二维码容器 + 下载按钮，路径可在 config/event.js 中配置） -->
+      <section class="mh-card">
+        <h2 class="mh-section-title">心理健康中心 · 预约通道</h2>
+        <div class="booking">
+          <div class="booking__qr">
+            <img v-if="EVENT.counseling.qrImage" :src="EVENT.counseling.qrImage" :alt="EVENT.counseling.name + '预约二维码'" />
+            <div v-else class="booking__qr-empty">
+              <span class="booking__qr-icon">▣</span>
+              <p>{{ EVENT.counseling.qrPlaceholder }}</p>
+            </div>
+          </div>
+
+          <div class="booking__info">
+            <p class="booking__name">{{ EVENT.counseling.name }}</p>
+            <p class="booking__subtitle">{{ EVENT.counseling.subtitle }}</p>
+
+            <ul class="booking__hours">
+              <li v-for="(h, i) in EVENT.counseling.hours" :key="i">
+                <span class="booking__hours-label">{{ h.label }}</span>
+                <span class="booking__hours-time">{{ h.time }}</span>
+              </li>
+            </ul>
+
+            <p v-if="EVENT.counseling.location" class="booking__meta">地址：{{ EVENT.counseling.location }}</p>
+            <p v-if="EVENT.counseling.phone" class="booking__meta">预约电话：{{ EVENT.counseling.phone }}</p>
+
+            <div class="booking__actions">
+              <a
+                class="mh-btn mh-btn--primary"
+                :class="{ 'mh-btn--disabled': !EVENT.counseling.qrImage }"
+                :href="EVENT.counseling.qrImage || undefined"
+                :download="EVENT.counseling.qrImage ? EVENT.counseling.qrFileName : undefined"
+                @click="onDownload"
+              >
+                ⬇ 下载预约二维码
+              </a>
+              <span class="booking__tip">{{ EVENT.counseling.qrTip }}</span>
+            </div>
+
+            <p class="booking__hint">{{ EVENT.counseling.qrHint }}</p>
+          </div>
+        </div>
+
+        <p class="mh-text booking__note">{{ EVENT.counseling.note }}</p>
+      </section>
+
+      <section class="mh-statement">
+        <h4>活动声明</h4>
+        <p v-for="(line, i) in EVENT.statement" :key="i">{{ i + 1 }}. {{ line }}</p>
+      </section>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { ArrowLeft } from '@element-plus/icons-vue'
-import bgImg from '../assets/images/load/bg.png'
+import { ElMessage } from 'element-plus'
+import { EVENT } from '../config/event'
+import PageHead from '../components/common/PageHead.vue'
+import RibbonMark from '../components/common/RibbonMark.vue'
 
-const activeTab = ref('moral')
+const facts = [
+  { label: '发起年份', value: '1992 年' },
+  { label: '活动日期', value: '每年 10 月 10 日' },
+  { label: '本年度', value: EVENT.ordinal },
+  { label: '宣传标志', value: '绿丝带' },
+]
+
+/** 常见误区：用「事实」对冲日常流传的偏见式说法 */
+const myths = [
+  {
+    myth: '心理困扰是「想太多」「太脆弱」，扛一扛就过去了。',
+    fact: '心理状态受睡眠、压力、身体状况、环境变化等多重因素影响，任何人都有可能遇到。它更像感冒发烧，需要的是被认真对待，而不是被指责。',
+  },
+  {
+    myth: '去心理健康中心，就等于「有心理疾病」。',
+    fact: '来访的同学大多只是遇到学业、人际或情绪上的困扰。把困扰说出来，是对自己状态的照顾，和「有病」没有必然关系；越早聊，越省力。',
+  },
+  {
+    myth: '心理咨询就是找人聊天、听人给建议。',
+    fact: '咨询是有专业设置与伦理规范的过程。咨询师不会替你做决定，也不会简单地说「你应该怎样」，而是陪你一起看清处境、找到你自己的办法。',
+  },
+  {
+    myth: '咨询师会评判我，还会把我说的告诉别人。',
+    fact: '尊重与保密是心理工作的职业伦理底线。只有在依法需要保护生命安全等特殊情形下才会突破保密，并且会尽可能与你沟通。',
+  },
+  {
+    myth: '聊一次就能彻底解决，没效果就是没用。',
+    fact: '改变通常需要几次到十几次的过程，像锻炼身体一样，效果来自持续投入；中途觉得「没用」也可以和咨询师直接讨论，这本身就是有用的素材。',
+  },
+  {
+    myth: '只有严重到撑不住了才需要求助。',
+    fact: '任何让你困扰的情绪都值得被认真对待。早一点说出口，往往能避免小困扰滚成大问题，也能少走很多弯路。',
+  },
+]
+
+/** 未配置二维码路径时，点击下载给出明确提示而不是静默失败 */
+const onDownload = (e) => {
+  if (!EVENT.counseling.qrImage) {
+    e.preventDefault()
+    ElMessage.info('预约二维码尚未配置：请在 src/config/event.js 的 counseling.qrImage 中填写图片路径')
+  }
+}
 </script>
 
 <style scoped>
-.mentally-page {
-  width: 100%;
-  min-height: 100vh;
-  position: relative;
-  font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
-}
-
-.mentally-page::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: url('../assets/images/load/bg.png') center top / cover fixed;
-  opacity: 0.12;
-  z-index: 0;
-}
-
-.page-container {
-  position: relative;
-  z-index: 1;
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: 20px 16px 60px;
-  box-sizing: border-box;
-}
-
-.page-header {
+.intro__head {
   display: flex;
   align-items: center;
-  gap: 15px;
-  margin-bottom: 20px;
-  padding-bottom: 15px;
-  border-bottom: 1px solid #e4e7ed;
+  gap: 18px;
+  margin-bottom: 14px;
 }
 
-.back-btn {
-  flex-shrink: 0;
+.theme-box {
+  padding: 16px 20px;
+  border-radius: var(--mh-radius-sm);
+  background: linear-gradient(120deg, var(--mh-primary-soft-2), #fff);
+  border: 1px dashed var(--mh-primary-light);
+  margin-bottom: 16px;
 }
 
-.page-title {
-  flex: 1;
-  text-align: center;
+.theme-box__label {
+  font-size: 12px;
+  letter-spacing: 1px;
+  color: var(--mh-muted);
+}
+
+.theme-box__text {
+  margin-top: 6px;
   font-size: 22px;
-  font-weight: 600;
-  color: #303133;
-  margin: 0;
+  font-weight: 800;
+  color: var(--mh-primary-dark);
+  letter-spacing: 2px;
 }
 
-.intro-box {
-  background: #fff;
-  padding: 18px 22px;
-  border-radius: 14px;
-  margin-bottom: 20px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-  font-size: 15px;
-  line-height: 1.7;
-  color: #444;
-  overflow: hidden;
-  border: 1px solid #ebeef5;
-  box-sizing: border-box;
-}
-.intro-box strong {
-  color: #409eff;
+.theme-box__from {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--mh-muted);
 }
 
-.main-tabs {
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-  overflow: hidden;
+.meaning {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 12px;
+  margin-top: 14px;
 }
 
-:deep(.el-tabs__header) {
-  background: #f8f9fa;
-  margin: 0;
-}
-:deep(.el-tabs__nav) {
-  flex-wrap: nowrap !important;
-}
-:deep(.el-tabs__item) {
-  font-size: 14px;
-  font-weight: 500;
-  white-space: nowrap !important;
-  flex-shrink: 0 !important;
-  padding: 0 15px;
-}
-
-:deep(.el-tab-pane) {
-  padding: 20px;
-}
-
-.activity-card {
-  margin-bottom: 12px;
-  border-radius: 12px;
-}
-
-:deep(.el-card__header) {
-  padding: 12px 16px;
-  font-weight: 600;
-  font-size: 16px;
-  color: #2c3e50;
-}
-
-:deep(.el-card__body) {
+.meaning__item {
   padding: 14px 16px;
-  color: #555;
-  line-height: 1.7;
+  border-radius: var(--mh-radius-sm);
+  background: var(--mh-surface-2);
+  border: 1px solid var(--mh-line);
 }
 
-:deep(.el-card__body p) {
-  margin: 6px 0;
+.meaning__item p {
+  margin-top: 8px;
+  font-size: 14px;
+  line-height: 1.85;
+  color: var(--mh-ink-2);
+}
+
+.intro__facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.intro__fact {
+  padding: 12px;
+  border-radius: var(--mh-radius-sm);
+  background: var(--mh-surface-2);
+  border: 1px solid var(--mh-line);
+  text-align: center;
+}
+
+.intro__fact-label {
+  display: block;
+  font-size: 12px;
+  color: var(--mh-muted);
+  margin-bottom: 4px;
+}
+
+.intro__fact-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--mh-primary-dark);
+}
+
+.activity-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.activity {
+  padding: 16px;
+  border-radius: var(--mh-radius-sm);
+  background: var(--mh-surface-2);
+  border: 1px solid var(--mh-line);
+}
+
+.activity__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.activity__name {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--mh-ink);
+}
+
+.activity__date {
+  margin-top: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--mh-primary);
+}
+
+.activity__note {
+  margin-top: 8px;
+  font-size: 13px;
+  line-height: 1.8;
+  color: var(--mh-muted);
+}
+
+.myths {
+  margin: 14px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.myth {
+  padding: 14px 16px;
+  border-radius: var(--mh-radius-sm);
+  background: #fff;
+  border: 1px solid var(--mh-line);
+}
+
+.myth__wrong,
+.myth__right {
+  font-size: 14px;
+  line-height: 1.85;
+}
+
+.myth__wrong {
+  color: #a4553b;
+}
+
+.myth__right {
+  margin-top: 8px;
+  color: var(--mh-ink-2);
+}
+
+.myth__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  margin-right: 6px;
+  border-radius: 50%;
+  font-size: 11px;
+  color: #fff;
+  background: #d9694a;
+  vertical-align: 1px;
+}
+
+.myth__right .myth__icon {
+  background: var(--mh-primary);
+}
+
+.highlight {
+  padding: 16px 18px;
+  border-radius: var(--mh-radius-sm);
+  background: linear-gradient(120deg, var(--mh-primary-soft), #fff);
+  border-left: 4px solid var(--mh-primary);
+  margin-bottom: 14px;
+}
+
+.highlight__title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--mh-primary-dark);
+  margin-bottom: 6px;
+}
+
+.highlight p {
+  font-size: 14px;
+  line-height: 1.85;
+  color: var(--mh-ink-2);
+}
+
+.channels {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+  margin: 16px 0 10px;
+}
+
+.channel {
+  padding: 14px 16px;
+  border-radius: var(--mh-radius-sm);
+  background: var(--mh-surface-2);
+  border: 1px solid var(--mh-line);
+}
+
+.channel__title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--mh-primary-dark);
+}
+
+.channel__desc {
+  margin-top: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--mh-ink-2);
+}
+
+.channel__meta {
+  margin-top: 6px;
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--mh-muted);
+}
+
+.booking {
+  display: flex;
+  gap: 22px;
+  align-items: flex-start;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+.booking__qr {
+  width: 180px;
+  height: 180px;
+  flex-shrink: 0;
+  border-radius: var(--mh-radius-sm);
+  border: 1px solid var(--mh-line);
+  background: #fff;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.booking__qr img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.booking__qr-empty {
+  width: 100%;
+  height: 100%;
+  border: 2px dashed var(--mh-primary-light);
+  border-radius: var(--mh-radius-sm);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: var(--mh-primary);
+  font-size: 13px;
+  background: var(--mh-primary-soft-2);
+}
+
+.booking__qr-icon {
+  font-size: 30px;
+  opacity: 0.6;
+}
+
+.booking__info {
+  flex: 1;
+  min-width: 240px;
+}
+
+.booking__name {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--mh-ink);
+}
+
+.booking__subtitle {
+  margin-top: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--mh-primary);
+}
+
+.booking__hours {
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.booking__hours li {
+  padding: 8px 12px;
+  border-radius: var(--mh-radius-sm);
+  background: var(--mh-surface-2);
+  border: 1px solid var(--mh-line);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.booking__hours-label {
+  font-size: 11px;
+  color: var(--mh-muted);
+}
+
+.booking__hours-time {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--mh-primary-dark);
+}
+
+.booking__meta {
+  margin-top: 10px;
+  font-size: 13px;
+  color: var(--mh-ink-2);
+}
+
+.booking__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+
+.booking__tip {
+  font-size: 12px;
+  color: var(--mh-muted);
+}
+
+.booking__hint {
+  margin-top: 10px;
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--mh-muted);
+}
+
+.booking__note {
+  margin-top: 18px;
+  padding: 14px 16px;
+  border-radius: var(--mh-radius-sm);
+  background: var(--mh-primary-soft-2);
+  border: 1px dashed var(--mh-primary-light);
+}
+
+.mh-btn--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
 }
 
 @media (max-width: 768px) {
-  .page-container {
+  .intro__head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .theme-box__text {
+    font-size: 19px;
+  }
+
+  .booking__qr {
     width: 100%;
-    padding: 15px;
-    padding: 15px 16px;
-  }
-  .page-title {
-    font-size: 18px;
-  }
-  :deep(.el-tab-pane) {
-    padding: 10px;
-  }
-  :deep(.el-tabs__item) {
-    padding: 0 12px;
-    font-size: 13px;
+    height: 170px;
   }
 }
 </style>

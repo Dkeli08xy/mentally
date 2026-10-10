@@ -1,220 +1,142 @@
-<!-- src\charts\M.vue -->
 <template>
-  <div class="msc-chart-container">
-    <div class="chart-header">
-      <el-button @click="goBack" type="default" size="small">
-        <ArrowLeft /> 返回
-      </el-button>
-      <h3>记忆衰减测试详情</h3>
-    </div>
+  <!-- src/charts/M.vue · 单次记忆保持记录详情 -->
+  <div class="mh-page">
+    <div class="mh-shell mh-shell--narrow">
+      <PageHead title="记忆保持记录详情" :subtitle="typeLabel" back-to="/user" back-label="返回记录列表" />
 
-    <div ref="chartRef" style="width:100%;height:380px;"></div>
+      <section class="mh-card">
+        <div v-if="record">
+          <div class="mh-stats">
+            <div v-for="(rate, i) in record.rates || []" :key="i" class="mh-stat">
+              <span class="mh-stat__label">{{ labels[i] }}后</span>
+              <span class="mh-stat__value">{{ rate }}<span class="mh-stat__unit">%</span></span>
+            </div>
+            <div class="mh-stat">
+              <span class="mh-stat__label">遗忘速率 k</span>
+              <span class="mh-stat__value">{{ record.kValue ?? '--' }}</span>
+              <span class="mh-stat__hint">{{ record.level || '' }}</span>
+            </div>
+            <div class="mh-stat">
+              <span class="mh-stat__label">拟合优度 R²</span>
+              <span class="mh-stat__value">{{ record.r2 ?? '--' }}</span>
+            </div>
+            <div class="mh-stat">
+              <span class="mh-stat__label">时间档</span>
+              <span class="mh-stat__value">{{ record.presetLabel || '标准版' }}</span>
+              <span class="mh-stat__hint">{{ delayText }}</span>
+            </div>
+          </div>
 
-    <div v-if="record" class="chart-info">
-      <p>测试时间：{{ formatDateTime(record.createTime) }}</p>
-      <p>遗忘速率 k：{{ record.kValue?.toFixed(2) || '--' }}</p>
-      <p>0秒记忆保留率：{{ record.rates?.[0] || 0 }}%</p>
-      <p>20秒记忆保留率：{{ record.rates?.[1] || 0 }}%</p>
-      <p>60秒记忆保留率：{{ record.rates?.[2] || 0 }}%</p>
-      <p>120秒记忆保留率：{{ record.rates?.[3] || 0 }}%</p>
+          <div ref="chartRef" class="mh-chart"></div>
+
+          <div class="mh-conclusion">
+            <p class="mh-conclusion__headline">记录信息</p>
+            <p class="mh-text">测试时间：{{ formatDateTime(record.createTime) }}</p>
+            <p class="mh-text">模式：{{ typeLabel }}（{{ record.pairCount || '--' }} 组词对 / 识记 {{ record.memorizeSeconds || '--' }} 秒）</p>
+            <p class="mh-text">时间档：{{ record.presetLabel || '标准版' }} · 延时节点 {{ delayText }}</p>
+            <p v-if="record.advice" class="mh-text">{{ record.advice }}</p>
+          </div>
+        </div>
+
+        <el-empty v-else description="未找到该记录，可能已被删除" />
+      </section>
+
+      <section class="mh-statement">
+        <h4>说明</h4>
+        <p v-for="(line, i) in EVENT.statement" :key="i">{{ i + 1 }}. {{ line }}</p>
+      </section>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { ArrowLeft } from '@element-plus/icons-vue'
-import * as echarts from 'echarts'
-import {
-  MemoryDecayEasyStorage,
-  MemoryDecayHardStorage,
-  ReactionTimeEasyStorage,
-  ReactionTimeHardStorage,
-  MicroExpressionEasyStorage,
-  MicroExpressionHardStorage
-} from '../utils/localStorage'
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
+import echarts from '../utils/echarts'
+import { useRoute } from 'vue-router'
+import PageHead from '../components/common/PageHead.vue'
+import { EVENT } from '../config/event'
+import { STORAGE_BY_TYPE } from '../utils/localStorage'
+import { curveSeries, formatDateTime } from '../utils/analysis'
+import { FALLBACK_DELAYS, delaySummary, formatDelay } from '../config/memory'
 
 const route = useRoute()
-const router = useRouter()
-
 const chartRef = ref(null)
 let chart = null
 
+const delays = computed(() => record.value?.delays || FALLBACK_DELAYS)
+const labels = computed(() => delays.value.map(formatDelay))
+const delayText = computed(() => delaySummary(delays.value))
 const recordId = computed(() => route.query.recordId)
 const recordType = computed(() => route.query.type)
-
-const getStorage = () => {
-  const type = recordType.value
-  const storageMap = {
-    reactionEasy: ReactionTimeEasyStorage,
-    reactionHard: ReactionTimeHardStorage,
-    memoryEasy: MemoryDecayEasyStorage,
-    memoryHard: MemoryDecayHardStorage,
-    microEasy: MicroExpressionEasyStorage,
-    microHard: MicroExpressionHardStorage
-  }
-  return storageMap[type] || MemoryDecayEasyStorage
-}
-
+const typeLabel = computed(() => (recordType.value === 'memoryHard' ? '进阶模式' : '基础模式'))
 const record = ref(null)
 
-const formatDateTime = (isoString) => {
-  if (!isoString) return '--'
-  const date = new Date(isoString)
-  return date.toLocaleString('zh-CN', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit'
-  })
-}
-
-function initChart() {
-  if (!chartRef.value) return
+function renderChart() {
+  if (!chartRef.value || !record.value) return
   if (chart) chart.dispose()
   chart = echarts.init(chartRef.value)
-}
 
-function renderMemoryChart(data) {
-  if (!chart) initChart()
+  const rates = record.value.rates || []
+  const k = record.value.kValue || 60
+  const points = delays.value
+  const tMax = Math.max(...points, 60)
+  const curve = curveSeries(k, rates[0] || 100, tMax, tMax > 120 ? 5 : 2)
+  const measured = rates.map((rate, i) => [points[i], rate])
 
-  const k = data.kValue || 50
-  const initial = 100
-
-  const timePoints = []
-  const ratePoints = []
-  for (let t = 0; t <= 120; t += 2) {
-    timePoints.push(t)
-    const rate = initial * Math.exp(-t / k)
-    ratePoints.push(parseFloat(rate.toFixed(2)))
-  }
-
-  const realPoints = [
-    { x: 0, y: data.rates?.[0] || 100 },
-    { x: 20, y: data.rates?.[1] || 0 },
-    { x: 60, y: data.rates?.[2] || 0 },
-    { x: 120, y: data.rates?.[3] || 0 }
-  ]
-
-  const option = {
+  chart.setOption({
+    grid: { left: 54, right: 24, top: 52, bottom: 40 },
+    legend: { data: ['拟合曲线', '实测保留率'], top: 8, textStyle: { color: '#6B7C82' } },
     tooltip: {
       trigger: 'axis',
       formatter: (params) => {
         const p = params[0]
-        if (p.seriesName === '理论遗忘曲线') {
-          return `时间: ${p.data[0]}s<br/>保留率: ${p.data[1]}%`
-        } else {
-          return `时间: ${p.data[0]}s<br/>实测保留率: ${p.data[1]}%`
-        }
-      }
-    },
-    legend: {
-      data: ['理论遗忘曲线', '实测保留率'],
-      top: 10
+        if (!p) return ''
+        return '时间：' + p.data[0] + ' s<br/>' + p.seriesName + '：' + p.data[1] + '%'
+      },
     },
     xAxis: {
       type: 'value',
       name: '时间(秒)',
       min: 0,
-      max: 120,
-      interval: 20
+      max: tMax,
+      interval: tMax / 4,
+      axisLabel: { formatter: '{value}s' },
     },
-    yAxis: {
-      type: 'value',
-      name: '记忆保留率 %',
-      min: 0,
-      max: 100
-    },
+    yAxis: { type: 'value', name: '保留率 %', min: 0, max: 100, axisLabel: { formatter: '{value}%' } },
     series: [
       {
-        name: '理论遗忘曲线',
+        name: '拟合曲线',
         type: 'line',
-        data: timePoints.map((t, i) => [t, ratePoints[i]]),
+        data: curve,
         smooth: true,
         showSymbol: false,
-        lineStyle: { width: 3, color: '#667eea' }
+        lineStyle: { width: 3, color: '#3E7CB1' },
+        areaStyle: { color: 'rgba(62,124,177,0.12)' },
       },
       {
         name: '实测保留率',
-        type: 'scatter',
-        data: realPoints.map(p => [p.x, p.y]),
+        type: 'line',
+        data: measured,
         symbolSize: 12,
-        itemStyle: { color: '#e74c3c' }
-      }
+        lineStyle: { width: 2, type: 'dashed', color: '#F2A65A' },
+        itemStyle: { color: '#F2A65A' },
+        label: { show: true, formatter: '{c}%', position: 'top', fontSize: 11, color: '#8a5416' },
+      },
     ],
-    grid: {
-      left: '10%',
-      right: '10%',
-      bottom: '10%',
-      top: '15%'
-    }
-  }
-
-  chart.setOption(option)
-  chart.resize()
+  })
 }
 
-const loadAndRender = () => {
-  if (!recordId.value) return
-  const storage = getStorage()
-  const data = storage.getById(recordId.value)
-  if (data) {
-    record.value = data
-    renderMemoryChart(data)
-  }
+function loadAndRender() {
+  if (!recordId.value || !recordType.value) return
+  const store = STORAGE_BY_TYPE[recordType.value]
+  if (!store) return
+  record.value = store.getById(recordId.value) || null
+  nextTick(renderChart)
 }
 
-const goBack = () => {
-  router.back()
-}
-
-onMounted(() => {
-  initChart()
-  loadAndRender()
-})
-
+onMounted(loadAndRender)
 onUnmounted(() => {
   if (chart) chart.dispose()
 })
-
-watch(() => route.query, () => {
-  loadAndRender()
-})
+watch(() => route.query.recordId, loadAndRender)
 </script>
-
-<style scoped>
-.msc-chart-container {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 20px;
-}
-
-.chart-header {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  margin-bottom: 30px;
-}
-
-.chart-header h3 {
-  margin: 0;
-  flex: 1;
-  text-align: center;
-}
-
-.chart-info {
-  margin-top: 20px;
-  padding: 18px;
-  background: #f5f7fa;
-  border-radius: 10px;
-  line-height: 1.6;
-}
-
-.chart-info p {
-  margin: 8px 0;
-  font-size: 14px;
-}
-</style>
