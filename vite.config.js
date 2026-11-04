@@ -4,10 +4,9 @@ import vue from '@vitejs/plugin-vue'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [vue()],
-  // 站点部署在 GitHub Pages 项目地址 https://dkeli08xy.github.io/mentally/ 下，
-  // 因此资源与路由前缀都必须是 /mentally/（否则刷新会跳出站点根目录）。
-  // 换仓库名/域名时改这里，或临时用：npm run build -- --base=/
-  base: '/mentally/',
+  // 路由使用 hash 模式，构建产物与部署路径无关：
+  // 放到 GitHub Pages 的 /mentally/ 子目录、任意静态空间，甚至本地直接打开都能运行。
+  base: './',
   build: {
     outDir: 'dist',
     // 本项目是校园活动页，宁可首屏多一个约 50KB(gzip) 的 CSS，也不要

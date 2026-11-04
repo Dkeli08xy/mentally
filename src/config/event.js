@@ -18,7 +18,7 @@ export const EVENT = {
   nameEn: 'World Mental Health Day',
   badge: '10·10',
   dateLabel: '10月10日',
-  dateText: '2026年10月10日',
+  dateText: '当前时间 ： 2026年11月5日',
 
   /* ---------------- 年度主题 ---------------- */
   /** 2026 年世界精神卫生日主题（国家心理健康和精神卫生防治中心发布） */
@@ -50,9 +50,13 @@ export const EVENT = {
   emergencyNote: '如遇紧急危险，请立即拨打 110 / 120，或前往就近医院急诊科。',
 
   /* ---------------- 校内心理健康中心（免费咨询） ----------------
-     预约二维码：把图片放进 public/ 目录后，把路径填到 qrImage 即可，
-     例如 public/qr/appointment.png → qrImage: '/qr/appointment.png'。
-     留空时页面显示占位框与填写提示，不影响其他内容。            */
+     预约二维码：图片放在 public/ 目录下，二维码路径写进 qrImage。
+     支持三种写法（都会自动适配部署路径）：
+       1. '预约链接.png'        相对路径：相对站点根目录
+       2. '/预约链接.png'       以 / 开头：自动补上部署前缀（当前部署在 /mentally/ 下）
+       3. 'https://x.com/q.png' 完整外链
+     留空时页面显示占位框与填写提示，不影响其他内容。
+     建议：文件名用英文更稳妥（如 public/qr/appointment.png → '/qr/appointment.png'）。 */
   counseling: {
     name: '心理健康中心',
     subtitle: '面向全体在校学生 · 免费 · 保密',
@@ -64,10 +68,10 @@ export const EVENT = {
     ],
     location: '', // 待填写：咨询中心地址
     phone: '', // 待填写：预约电话
-    qrImage: '', // 待填写：预约二维码图片路径（如 '/qr/appointment.png'）
+    qrImage: '/预约链接.png', // 对应 public/预约链接.png
     qrTip: '扫码进入预约通道',
     qrPlaceholder: '预约二维码位置',
-    qrHint: '把二维码图片放入 public/ 目录，并在 src/config/event.js 的 counseling.qrImage 中填写路径。',
+    qrHint: 'QQ扫码填问卷预约',
     qrFileName: '心理健康中心预约二维码.png',
     note:
       '走进心理健康中心，不代表「有问题」，而是像去操场跑步一样，是对自己状态的一次照顾。' +
@@ -79,13 +83,13 @@ export const EVENT = {
   activities: [
     {
       name: '世界精神卫生日心理挑战',
-      date: '10 月 10 日',
-      tag: '线上开放',
+      date: '11 月 5 日',
+      tag: '线上/线下开放',
       note: '本网站的三个心理小挑战（反应速度 / 记忆保持 / 情绪识别），可随时参与并查看自己的成绩。',
     },
     {
       name: '京东校园解压运动会',
-      date: '10 月 10 日（暂定）',
+      date: '11 月 5 日',
       tag: '线下现场',
       note: '由京东校园支持的减压运动会，具体时间、地点与参与方式以学校正式通知为准。',
     },

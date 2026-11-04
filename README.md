@@ -22,6 +22,8 @@ npm run preview    # 本地预览构建产物
 
 ## 二、页面与路由
 
+路由为 **hash 模式**，实际地址形如 `https://<站点>/#/men`（下表省略 `#`）。
+
 | 路由 | 页面 | 说明 |
 | --- | --- | --- |
 | `/` → `/load` | 封面 | 活动主视觉 + 年度主题，点击任意位置进入 |
@@ -36,14 +38,16 @@ npm run preview    # 本地预览构建产物
 | `/RC` `/MC` `/EC` | 成绩分布 | 个人成绩与参考区间；记忆按时间档分开统计 |
 | `/RM` `/MM` `/EM` | 科学原理 | 反应时、遗忘曲线、情绪识别的科普长文 |
 
-未知路径会重定向回封面，不会白屏；弱网下路由资源加载失败会自动重试一次。
+- 未知路径会重定向回封面，不会白屏；弱网下路由资源加载失败会自动重试一次。
+- 首页「前往预约通道」会跳到 `#/men?focus=booking`，到达介绍页后**自动平滑下滑并高亮预约二维码卡片**
+  （hash 路由下 `#` 已被路由占用，所以用 query 参数而不是锚点；`/men?focus=booking` 也可以直接分享）。
 
 ## 三、二次开发：常用修改位置
 
 | 想改什么 | 改哪里 |
 | --- | --- |
 | 年份 / 年度主题 / 口号 / 主办方 / 求助热线 | `src/config/event.js` |
-| **心理健康中心预约二维码** | 图片放入 `public/`（如 `public/qr/appointment.png`），再把 `src/config/event.js` 的 `counseling.qrImage` 设为 `'/qr/appointment.png'`；留空时页面显示占位框 |
+| **心理健康中心预约二维码** | 图片放在 `public/` 下（当前为 `public/预约链接.png`），`src/config/event.js` 的 `counseling.qrImage` 填对应路径（当前 `'/预约链接.png'`）。支持 `'预约链接.png'`、`'/预约链接.png'`、完整外链三种写法，都会自动适配部署前缀；留空则显示占位框 |
 | 心理中心工作时间 / 地址 / 电话 | `src/config/event.js` 的 `counseling.hours / location / phone` |
 | 同期校园活动 | `src/config/event.js` 的 `activities` |
 | 常见误区、医保政策文案 | `src/view/mentally.vue` 中的 `myths` 与「费用与政策」段落 |
@@ -79,29 +83,28 @@ npm run preview    # 本地预览构建产物
 
 ## 六、部署
 
+**路由模式为 hash（地址形如 `https://dkeli08xy.github.io/mentally/#/men`），
+`vite.config.js` 中 `base` 为 `'./'`。** 因此构建产物与部署路径无关：
+
+- 放到任意子目录、任意静态空间都能访问；
+- 深层路由刷新不需要服务器做 SPA 回退（不依赖 404.html）；
+- 把 `dist` 直接拷进 U 盘、用 `file://` 打开也能跑（适合现场无网络时备用）。
+
 ### 1. GitHub Pages（当前线上地址）
 
 线上站点：**https://dkeli08xy.github.io/mentally/**
 
 ```bash
-npm run deploy     # = build:pages + gh-pages -d dist，推送到 gh-pages 分支
+npm run deploy     # = build:pages + gh-pages -d dist --dotfiles，推送到 gh-pages 分支
 ```
 
-- `vite.config.js` 的 `base` 必须是 `'/mentally/'`（项目站点子路径），
-  `src/router/index.js` 使用 `createWebHistory(import.meta.env.BASE_URL)`，
-  两者一致才能保证刷新时不跳出 `/mentally/` 目录。
-- `scripts/make-404.mjs` 会把 `dist/index.html` 复制成 `dist/404.html` 并写入 `.nojekyll`：
-  GitHub Pages 不支持 SPA 回退，靠 404.html 才能让 `/mentally/men`、`/mentally/game` 这类
-  深层地址**直接访问与刷新**都正常。
-- 换仓库名或换域名时：改 `vite.config.js` 的 `base`（或临时 `npm run build -- --base=/`）。
+- `scripts/make-404.mjs` 仍会在构建后生成 `dist/404.html` 与 `.nojekyll`：
+  hash 模式下它们不是必需的，保留是为了万一以后改回 history 模式或有人误访问旧路径时的兜底。
+- 换仓库名/换域名**不需要改任何配置**（相对路径 + hash 路由）。
 
 ### 2. 其他静态托管（Nginx / Apache / 对象存储）
 
-- 部署在**域名根目录**：把 `base` 改为 `'/'`，并让服务器把未知路径回退到 `index.html`。
-- 部署在**子目录**：`base` 设为该子目录（如 `'/activity/'`），服务器同样配置回退到该目录下的 `index.html`。
-- 需要**直接用 `file://` 打开**或完全无法配置服务器回退时：
-  把 `src/router/index.js` 的 `createWebHistory` 换成 `createWebHashHistory`，
-  `base` 改为 `'./'`，重新构建即可（URL 会带 `#`）。
+直接把 `dist` 整个目录上传即可，无需任何路由重写配置。
 
 ## 七、相对 5·25 版本的改动摘要
 

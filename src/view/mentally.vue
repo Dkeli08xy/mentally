@@ -119,12 +119,13 @@
         <p class="mh-text mh-muted">{{ EVENT.emergencyNote }}</p>
       </section>
 
-      <!-- 五、预约通道（二维码容器 + 下载按钮，路径可在 config/event.js 中配置） -->
-      <section class="mh-card">
+      <!-- 五、预约通道（二维码容器 + 下载按钮，路径可在 config/event.js 中配置）
+           锚点 id="booking"：从首页「前往预约通道」进入时自动下滑到这张卡片 -->
+      <section id="booking" ref="bookingRef" class="mh-card" :class="{ 'booking--focus': bookingHighlight }">
         <h2 class="mh-section-title">心理健康中心 · 预约通道</h2>
         <div class="booking">
           <div class="booking__qr">
-            <img v-if="EVENT.counseling.qrImage" :src="EVENT.counseling.qrImage" :alt="EVENT.counseling.name + '预约二维码'" />
+            <img v-if="qrSrc" :src="qrSrc" :alt="EVENT.counseling.name + '预约二维码'" @error="onQrError" />
             <div v-else class="booking__qr-empty">
               <span class="booking__qr-icon">▣</span>
               <p>{{ EVENT.counseling.qrPlaceholder }}</p>
@@ -149,8 +150,8 @@
               <a
                 class="mh-btn mh-btn--primary"
                 :class="{ 'mh-btn--disabled': !EVENT.counseling.qrImage }"
-                :href="EVENT.counseling.qrImage || undefined"
-                :download="EVENT.counseling.qrImage ? EVENT.counseling.qrFileName : undefined"
+                :href="qrSrc || undefined"
+                :download="qrSrc ? EVENT.counseling.qrFileName : undefined"
                 @click="onDownload"
               >
                 ⬇ 下载预约二维码
@@ -174,10 +175,75 @@
 </template>
 
 <script setup>
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { EVENT } from '../config/event'
 import PageHead from '../components/common/PageHead.vue'
 import RibbonMark from '../components/common/RibbonMark.vue'
+
+const route = useRoute()
+const bookingRef = ref(null)
+const bookingHighlight = ref(false)
+const qrLoadError = ref(false)
+
+/**
+ * 预约二维码地址。counseling.qrImage 支持三种写法：
+ *   1. 'qr/appointment.png'       相对路径（推荐，站点部署到任何子目录都能用）
+ *   2. '/qr/appointment.png'      以 / 开头时自动补上部署前缀（vite 的 base）
+ *   3. 'https://xxx/qr.png'       完整外链
+ */
+const qrSrc = computed(() => {
+  const raw = EVENT.counseling.qrImage
+  if (!raw || qrLoadError.value) return ''
+  if (/^(https?:)?\/\//i.test(raw)) return raw
+  if (raw.startsWith('/')) {
+    const base = String(import.meta.env.BASE_URL || '/').replace(/\/$/, '')
+    return base + raw
+  }
+  return raw
+})
+
+const onQrError = () => {
+  qrLoadError.value = true
+}
+
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
+
+/**
+ * 从首页「前往预约通道」进入时（#/men?focus=booking），
+ * 页面加载后自动平滑下滑到预约二维码卡片，并短暂高亮。
+ * 说明：hash 路由下 # 已被路由占用，因此用 query 参数而不是锚点跳转。
+ */
+async function scrollToBooking() {
+  await nextTick()
+  const el = bookingRef.value
+  if (!el) return
+
+  // 等布局稳定（样式、字体、素材撑开后再定位），避免滚到一半被顶偏
+  let lastTop = -1
+  let stableTimes = 0
+  for (let i = 0; i < 20; i++) {
+    const currentTop = el.getBoundingClientRect().top + window.scrollY
+    stableTimes = Math.abs(currentTop - lastTop) < 1 ? stableTimes + 1 : 0
+    lastTop = currentTop
+    if (stableTimes >= 2) break
+    await sleep(80)
+  }
+
+  window.scrollTo({ top: Math.max(0, lastTop - 16), behavior: 'smooth' })
+  bookingHighlight.value = true
+  setTimeout(() => {
+    bookingHighlight.value = false
+  }, 1800)
+}
+
+function handleBookingFocus() {
+  if (route.query.focus === 'booking') scrollToBooking()
+}
+
+onMounted(handleBookingFocus)
+watch(() => route.query.focus, handleBookingFocus)
 
 const facts = [
   { label: '发起年份', value: '1992 年' },
@@ -451,6 +517,28 @@ const onDownload = (e) => {
   font-size: 12px;
   line-height: 1.7;
   color: var(--mh-muted);
+}
+
+#booking {
+  /* 下滑定位时留出一点顶部空隙 */
+  scroll-margin-top: 16px;
+}
+
+.booking--focus {
+  animation: bookingFlash 1.8s ease;
+  border-color: var(--mh-primary-light);
+}
+
+@keyframes bookingFlash {
+  0% {
+    box-shadow: 0 0 0 0 rgba(31, 138, 112, 0.4);
+  }
+  30% {
+    box-shadow: 0 0 0 8px rgba(31, 138, 112, 0.14);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(31, 138, 112, 0);
+  }
 }
 
 .booking {

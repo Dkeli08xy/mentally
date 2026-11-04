@@ -1,9 +1,9 @@
 // src/router/index.js
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHashHistory } from 'vue-router'
 
-// 说明：如果部署环境不支持 SPA 重写（例如直接把 dist 目录丢到静态空间、
-// 或者用 file:// 打开），可以把下面的 createWebHistory 换成 createWebHashHistory，
-// 同时把 vite.config.js 的 base 改成 './'，这样任意路径都能正常访问。
+// 路由模式：hash（地址形如 /#/men）
+// 纯前端项目部署到任意静态空间、任意子目录，甚至直接用 file:// 打开都能访问，
+// 且深层路由刷新不需要服务器做 SPA 回退（不依赖 404.html）。
 const routes = [
   {
     path: '/',
@@ -55,13 +55,13 @@ const routes = [
   { path: '/:pathMatch(.*)*', redirect: '/load' },
 ]
 
-// 路由基址取 Vite 的 BASE_URL（vite.config.js 中的 base），
-// 部署到 GitHub Pages 项目地址 /mentally/ 时，路由才会落在同一路径下，
-// 否则访问 https://<user>.github.io/mentally/ 会被改写到站点根目录 /load。
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
+  // hash 模式下不需要区分部署路径，GitHub Pages 项目站点 /mentally/ 也能直接用
+  history: createWebHashHistory(),
   routes,
-  scrollBehavior: () => ({ top: 0 }),
+  // 默认回到页面顶部；带 focus 参数时交给目标页面自己平滑下滑到指定卡片，
+  // 避免「路由回顶」与「页面下滑」互相打架。
+  scrollBehavior: (to) => (to.query.focus ? false : { top: 0 }),
 })
 
 // 弱网环境下路由级资源可能加载失败（例如校内 Wi-Fi 抖动）。
@@ -77,7 +77,8 @@ router.onError((error, to) => {
     return
   }
   sessionStorage.setItem(flag, '1')
-  window.location.assign(to?.fullPath || '/')
+  // hash 模式下地址里的 # 才是路由，直接 reload 才能重试同一路由
+  window.location.reload()
 })
 
 export default router

@@ -65,8 +65,11 @@
           </p>
           <p class="campus-care__hours">开放时间：{{ EVENT.counseling.hoursText }}</p>
           <div class="campus-care__actions">
-            <router-link to="/men" class="mh-btn mh-btn--primary mh-btn--sm">查看预约通道</router-link>
-            <span class="campus-care__tip">预约二维码与更多说明见「世界精神卫生日介绍」页</span>
+            <router-link :to="{ path: '/men', query: { focus: 'booking' } }" class="mh-btn mh-btn--primary mh-btn--sm">
+              前往预约通道
+            </router-link>
+            <router-link to="/men" class="mh-btn mh-btn--ghost mh-btn--sm">了解更多</router-link>
+            <span class="campus-care__tip">点击后会在介绍页直接滑到预约二维码卡片</span>
           </div>
         </div>
       </section>
